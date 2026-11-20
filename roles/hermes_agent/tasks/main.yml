@@ -1,0 +1,18 @@
+---
+- name: Create compose directory
+  ansible.builtin.file:
+    path: "{{ hermes_agent_compose_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Deploy hermes agent compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ hermes_agent_compose_dir }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy hermes agent
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ hermes_agent_compose_dir }} up --detach --pull always --remove-orphans
+  register: hermes_agent_up
+  changed_when: (hermes_agent_up.stdout ~ hermes_agent_up.stderr) is search('Created|Recreated|Started')

@@ -1,0 +1,8 @@
+---
+hermes_agent_image: ghcr.io/sozinovd/hermes-agent:latest
+hermes_agent_compose_dir: /opt/hermes-agent
+hermes_agent_container_name: hermes-agent
+hermes_agent_restart_policy: unless-stopped
+hermes_agent_ports: []
+hermes_agent_volumes: []
+hermes_agent_env: {}

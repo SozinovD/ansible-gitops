@@ -1,0 +1,7 @@
+Types: deb
+URIs: https://download.docker.com/{{ docker_apt_dist }}
+Suites: {{ ansible_facts['distribution_release'] }}
+Components: stable
+Architectures: {{ docker_apt_arch }}
+Signed-By: /etc/apt/keyrings/docker.asc
+Enabled: yes

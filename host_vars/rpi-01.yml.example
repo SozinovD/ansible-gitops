@@ -1,0 +1,5 @@
+---
+ansible_pull_interval: 15min
+
+sbc_extra_roles:
+  - common

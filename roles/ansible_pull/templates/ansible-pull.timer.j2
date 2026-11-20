@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodically apply configuration from {{ ansible_pull_repo_url }}
+
+[Timer]
+OnBootSec={{ ansible_pull_on_boot_sec }}
+OnUnitActiveSec={{ ansible_pull_interval }}
+RandomizedDelaySec={{ ansible_pull_randomized_delay }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

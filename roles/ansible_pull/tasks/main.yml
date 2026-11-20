@@ -1,0 +1,59 @@
+---
+- name: Install ansible and git
+  ansible.builtin.package:
+    name:
+      - ansible
+      - git
+      - python3-apt
+    state: present
+
+- name: Create ansible-pull work directory
+  ansible.builtin.file:
+    path: "{{ ansible_pull_workdir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create directory for repo ssh key
+  ansible.builtin.file:
+    path: "{{ ansible_pull_key_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Deploy read-only key for repo access
+  ansible.builtin.copy:
+    content: "{{ ansible_pull_deploy_key }}"
+    dest: "{{ ansible_pull_key_path }}"
+    owner: root
+    group: root
+    mode: "0600"
+  when: ansible_pull_deploy_key | length > 0
+  no_log: true
+
+- name: Install ansible-pull systemd service
+  ansible.builtin.template:
+    src: ansible-pull.service.j2
+    dest: /etc/systemd/system/ansible-pull.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart ansible-pull timer
+
+- name: Install ansible-pull systemd timer
+  ansible.builtin.template:
+    src: ansible-pull.timer.j2
+    dest: /etc/systemd/system/ansible-pull.timer
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart ansible-pull timer
+
+- name: Enable and start ansible-pull timer
+  ansible.builtin.systemd:
+    name: ansible-pull.timer
+    enabled: true
+    state: started
+    daemon_reload: true

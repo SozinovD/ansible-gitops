@@ -28,7 +28,7 @@ jobs:
           if [[ "${BRANCH}" == "main" || "${BRANCH}" == "master" ]]; then
             TAG="$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)"
             if [[ -z "${TAG}" ]]; then
-              VERSION="0.0.$(git rev-list --count HEAD)"
+              VERSION="0.0.$(git rev-list --count --first-parent HEAD)"
             elif [[ -n "$(git describe --tags --exact-match --match 'v[0-9]*' 2>/dev/null || true)" ]]; then
               VERSION="${TAG#v}"
             else
@@ -37,7 +37,7 @@ jobs:
               REST="${BASE#*.}"
               MINOR="${REST%%.*}"
               PATCH="${REST##*.}"
-              N="$(git rev-list --count "${TAG}..HEAD")"
+              N="$(git rev-list --count --first-parent "${TAG}..HEAD")"
               VERSION="${MAJOR}.${MINOR}.$((PATCH + N))"
             fi
           else

@@ -89,7 +89,9 @@ ansible syntax-check, then a versioned `sbc-tools-<version>.zip` artifact.
 Version scheme (semver):
 
 - commits on `main` — clean `X.Y.Z`: latest `vX.Y.Z` tag plus one patch per
-  commit since the tag (`0.0.<commit count>` until the first tag);
+  commit on the first-parent chain of `main` since the tag (PR branch commits
+  don't count, so each merged PR bumps the patch by exactly 1;
+  `0.0.<commit count>` until the first tag);
 - commits on any other branch — `<branch>-<short sha>` (branch name sanitized
   to `[a-zA-Z0-9._-]`, so non-ASCII names fall back to `branch-<sha>`).
 

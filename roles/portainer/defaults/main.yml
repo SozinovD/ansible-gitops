@@ -1,0 +1,10 @@
+---
+portainer_image: portainer/portainer-ce:lts
+portainer_compose_dir: /opt/portainer
+portainer_restart_policy: unless-stopped
+portainer_ports:
+  - "9443:9443"
+  - "8000:8000"
+portainer_volumes:
+  - /var/run/docker.sock:/var/run/docker.sock
+  - portainer_data:/data

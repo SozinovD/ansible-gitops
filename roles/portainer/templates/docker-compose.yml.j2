@@ -1,0 +1,18 @@
+services:
+  portainer:
+    image: {{ portainer_image }}
+    container_name: portainer
+    restart: {{ portainer_restart_policy }}
+{% if portainer_ports %}
+    ports:
+{% for p in portainer_ports %}
+      - "{{ p }}"
+{% endfor %}
+{% endif %}
+    volumes:
+{% for v in portainer_volumes %}
+      - {{ v }}
+{% endfor %}
+
+volumes:
+  portainer_data: {}

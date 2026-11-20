@@ -1,0 +1,11 @@
+---
+- name: Self-managed SBC configuration
+  hosts: all
+  become: true
+  roles:
+    - role: ansible_pull
+  tasks:
+    - name: Apply device-specific roles
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop: "{{ sbc_extra_roles | default([]) }}"

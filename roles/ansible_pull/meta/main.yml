@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: SozinovD
+  description: Bootstrap SBC self-management via ansible-pull and systemd timer
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - noble
+
+dependencies: []

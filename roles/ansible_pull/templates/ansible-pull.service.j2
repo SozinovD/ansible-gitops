@@ -1,0 +1,14 @@
+[Unit]
+Description=Apply configuration from {{ ansible_pull_repo_url }}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Nice=10
+{% if ansible_pull_deploy_key | length > 0 %}
+Environment="GIT_SSH_COMMAND=ssh -i {{ ansible_pull_key_path }} -o IdentitiesOnly=yes"
+{% endif %}
+ExecStart=/usr/bin/ansible-pull \
+    --url {{ ansible_pull_repo_url }} --checkout {{ ansible_pull_checkout }} --directory {{ ansible_pull_workdir }} --inventory {{ ansible_pull_inventory }} --accept-host-key{% if ansible_pull_clean %} --clean{% endif %}{% if ansible_pull_only_changed %} --only-changed{% endif %} \
+    {{ ansible_pull_playbook }}

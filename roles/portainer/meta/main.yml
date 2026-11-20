@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: SozinovD
+  description: Portainer CE for the local Docker environment
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - noble
+
+dependencies:
+  - docker

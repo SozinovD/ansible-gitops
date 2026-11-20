@@ -1,0 +1,23 @@
+services:
+  hermes-agent:
+    image: {{ hermes_agent_image }}
+    container_name: {{ hermes_agent_container_name }}
+    restart: {{ hermes_agent_restart_policy }}
+{% if hermes_agent_ports %}
+    ports:
+{% for p in hermes_agent_ports %}
+      - "{{ p }}"
+{% endfor %}
+{% endif %}
+{% if hermes_agent_volumes %}
+    volumes:
+{% for v in hermes_agent_volumes %}
+      - {{ v }}
+{% endfor %}
+{% endif %}
+{% if hermes_agent_env %}
+    environment:
+{% for key, value in hermes_agent_env.items() %}
+      {{ key }}: {{ value | to_json }}
+{% endfor %}
+{% endif %}

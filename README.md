@@ -80,5 +80,8 @@ local.yml                       entry playbook for ansible-pull
 bootstrap.sh                    initial setup
 host_vars/<hostname>.yml        per-device variables and list of roles
 roles/ansible_pull/             installs ansible, service, and the update timer
+roles/docker/                   Docker Engine + compose plugin
+roles/portainer/                Portainer CE (docker backend)
+roles/hermes_agent/             hermes agent in docker
 roles/<other>/                  your device roles (users, packages, services)
 ```

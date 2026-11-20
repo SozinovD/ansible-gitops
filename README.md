@@ -46,6 +46,32 @@ the systemd timer.
 - Role defaults (repo, branch, interval): `roles/ansible_pull/defaults/main.yml`,
   can be overridden in `host_vars/<hostname>.yml`.
 
+## Secrets
+
+Secrets (bot tokens, API keys) never live in this repo. Each device keeps them
+in `/etc/sbc-tools/secrets.yml` (root-only, `chmod 600`), which `local.yml`
+loads before applying roles — variables there override role defaults, so roles
+read them as ordinary Ansible vars:
+
+```yaml
+# /etc/sbc-tools/secrets.yml
+portainer_telegram_bot_token: "123456:ABC-DEF..."
+portainer_telegram_api_key: "ptr_..."
+portainer_telegram_allowed_chat_ids: "123456789"
+```
+
+Create the file once per device (scp or on console):
+
+```bash
+sudo install -d -m 700 /etc/sbc-tools
+sudo tee /etc/sbc-tools/secrets.yml >/dev/null <<'EOF'
+...
+EOF
+sudo chmod 600 /etc/sbc-tools/secrets.yml
+```
+
+The file is outside the repo and survives ansible-pull runs untouched.
+
 ## Diagnostics
 
 ```bash
@@ -86,7 +112,8 @@ the merge commit, so artifact and tag always match. Push a manual tag
   [portainer-telegram](https://github.com/SozinovD/portainer-telegram) as a
   Portainer stack via the Portainer API (idempotent: creates or updates on
   content change). Requires an initialized Portainer (admin account created)
-  and an API key (My Account → API Tokens). Minimal `host_vars`:
+  and an API key (My Account → API Tokens). Secrets go to
+  `/etc/sbc-tools/secrets.yml` on the device (see [Secrets](#secrets)):
 
   ```yaml
   portainer_telegram_bot_token: "123456:ABC-DEF..."
@@ -96,7 +123,8 @@ the merge commit, so artifact and tag always match. Push a manual tag
 
   Optional: `portainer_telegram_image`, `portainer_telegram_stack_name`,
   `portainer_telegram_portainer_url` (default `http://host.docker.internal:9000`),
-  `portainer_telegram_portainer_endpoint_id`, `portainer_telegram_extra_env`.
+  `portainer_telegram_portainer_endpoint_id`, `portainer_telegram_extra_env` —
+  these can live in `host_vars/<hostname>.yml`.
   Depends on `portainer`.
 - `hermes_agent` — hermes agent container managed via docker compose. Set the
   image and runtime settings in `host_vars/<hostname>.yml`:

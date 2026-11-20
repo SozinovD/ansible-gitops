@@ -162,6 +162,26 @@ the merge commit, so artifact and tag always match. Push a manual tag
   pisugar_check_interval: 1min
   ```
 
+- `wifi_hotspot` — [sbc-wifi-hotspot](https://github.com/SozinovD/sbc-wifi-hotspot)
+  in docker: connects to known Wi-Fi networks and, when none are around (or
+  there is no internet), raises an access point with a captive portal to pick
+  a network and enter the password. The container runs with
+  `network_mode: host` and `NET_ADMIN`/`NET_RAW`; if NetworkManager is
+  present, the interface is excluded from its control via a drop-in (known
+  networks are stored in `/var/lib/sbc-wifi-hotspot`, bind-mounted to
+  `/data`). Settings in `host_vars/<hostname>.yml`:
+
+  ```yaml
+  wifi_hotspot_interface: mlan0     # wlan0 by default, mlan0 on Radxa Zero 3W
+  wifi_hotspot_ap_ssid: SBC-Hotspot
+  wifi_hotspot_ap_passphrase: change-me   # or put it in /etc/sbc-tools/secrets.yml
+  wifi_hotspot_env:                # any other service variables
+    AP_CHANNEL: "6"
+    MONITOR_INTERVAL: "30"
+  ```
+
+  Depends on `docker`.
+
 ## Repo structure
 
 ```
@@ -174,5 +194,6 @@ roles/portainer/                Portainer CE (docker backend)
 roles/portainer_telegram/       portainer-telegram as a Portainer stack
 roles/hermes_agent/             hermes agent in docker
 roles/pisugar/                  PiSugar battery hat, low battery shutdown
+roles/wifi_hotspot/             sbc-wifi-hotspot in docker
 roles/<other>/                  your device roles (users, packages, services)
 ```

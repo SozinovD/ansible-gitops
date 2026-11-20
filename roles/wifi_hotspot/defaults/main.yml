@@ -1,0 +1,10 @@
+---
+wifi_hotspot_image: ghcr.io/sozinovd/sbc-wifi-hotspot:latest
+wifi_hotspot_compose_dir: /opt/sbc-wifi-hotspot
+wifi_hotspot_container_name: sbc-wifi-hotspot
+wifi_hotspot_restart_policy: unless-stopped
+wifi_hotspot_interface: wlan0
+wifi_hotspot_ap_ssid: SBC-Hotspot
+wifi_hotspot_ap_passphrase: sbc-hotspot
+wifi_hotspot_data_dir: /var/lib/sbc-wifi-hotspot
+wifi_hotspot_env: {}

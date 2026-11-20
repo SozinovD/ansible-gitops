@@ -1,0 +1,18 @@
+services:
+  sbc-wifi-hotspot:
+    image: {{ wifi_hotspot_image }}
+    container_name: {{ wifi_hotspot_container_name }}
+    restart: {{ wifi_hotspot_restart_policy }}
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      WIFI_INTERFACE: {{ wifi_hotspot_interface | to_json }}
+      AP_SSID: {{ wifi_hotspot_ap_ssid | to_json }}
+      AP_PASSPHRASE: {{ wifi_hotspot_ap_passphrase | to_json }}
+{% for key, value in wifi_hotspot_env.items() %}
+      {{ key }}: {{ value | to_json }}
+{% endfor %}
+    volumes:
+      - {{ wifi_hotspot_data_dir }}:/data

@@ -5,10 +5,15 @@ sbc_extra_roles:
   - portainer
   - hermes_agent
   # - pisugar
+  # - wifi_hotspot
 
 # pisugar_model: "PiSugar 3"
 # pisugar_low_battery_level: 15
 # pisugar_check_interval: 1min
+
+# wifi_hotspot_interface: mlan0
+# wifi_hotspot_ap_ssid: SBC-Hotspot
+# wifi_hotspot_ap_passphrase: change-me
 
 hermes_agent_env:
   HERMES_LOG_LEVEL: info

@@ -2,6 +2,15 @@
 - name: Self-managed SBC configuration
   hosts: all
   become: true
+  pre_tasks:
+    - name: Check for host secrets file
+      ansible.builtin.stat:
+        path: /etc/sbc-tools/secrets.yml
+      register: sbc_secrets_file
+    - name: Load host secrets
+      ansible.builtin.include_vars:
+        file: /etc/sbc-tools/secrets.yml
+      when: sbc_secrets_file.stat.exists
   roles:
     - role: ansible_pull
   tasks:

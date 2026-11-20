@@ -55,29 +55,23 @@ sudo systemctl start ansible-pull.service  # run right now
 journalctl -u ansible-pull.service -f   # logs
 ```
 
-## Roles
+## Versioning and CI
 
-- `ansible_pull` — installs ansible and the systemd timer for self-updates.
-- `docker` — Docker Engine + compose plugin from the official apt repository
-  (Debian, Ubuntu, Raspberry Pi OS; arm64/armhf/amd64). Add users to the docker
-  group via `docker_users`.
-- `portainer` — Portainer CE for the local Docker environment (UI on
-  `https://<host>:9443`, first admin user is created on first visit). Depends
-  on `docker`.
-- `hermes_agent` — hermes agent container managed via docker compose. Set the
-  image and runtime settings in `host_vars/<hostname>.yml`:
+Every push to any branch runs `.github/workflows/ci.yml`: YAML validation,
+ansible syntax-check, then a versioned `sbc-tools-<version>.zip` artifact.
 
-  ```yaml
-  hermes_agent_image: ghcr.io/sozinovd/hermes-agent:latest
-  hermes_agent_ports:
-    - "8080:8080"
-  hermes_agent_volumes:
-    - /opt/hermes-agent/data:/data
-  hermes_agent_env:
-    HERMES_LOG_LEVEL: info
-  ```
+Version scheme (semver):
 
-  Depends on `docker`.
+- commits on `main` — clean `X.Y.Z`: latest `vX.Y.Z` tag plus one patch per
+  commit since the tag (`0.0.<commit count>` until the first tag);
+- commits on any other branch — `<branch>-<short sha>` (branch name sanitized
+  to `[a-zA-Z0-9._-]`, so non-ASCII names fall back to `branch-<sha>`).
+
+Every PR merged into `main` is automatically tagged `vX.Y.Z` by
+`.github/workflows/release.yml` (annotated tag on the merge commit, PR number
+and title in the message). The tag equals the version the ci job assigned to
+the merge commit, so artifact and tag always match. Push a manual tag
+(e.g. `v2.0.0`) to bump major/minor — releases after it continue from there.
 
 ## Repo structure
 

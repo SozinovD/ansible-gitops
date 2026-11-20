@@ -1,0 +1,105 @@
+---
+- name: Require portainer-telegram credentials
+  ansible.builtin.assert:
+    that:
+      - portainer_telegram_bot_token | string | length > 0
+      - portainer_telegram_api_key | string | length > 0
+    quiet: true
+
+- name: Wait for Portainer API
+  ansible.builtin.wait_for:
+    host: localhost
+    port: "{{ portainer_telegram_api_url | urlsplit('port') | default(443, true) }}"
+    timeout: 60
+
+- name: Render stack file
+  ansible.builtin.set_fact:
+    portainer_telegram_stack_file: "{{ lookup('ansible.builtin.template', 'stack.yml.j2') }}"
+
+- name: List Portainer endpoints
+  ansible.builtin.uri:
+    url: "{{ portainer_telegram_api_url }}/api/endpoints"
+    method: GET
+    headers:
+      X-API-Key: "{{ portainer_telegram_api_key }}"
+    validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+    status_code:
+      - 200
+  register: pt_endpoints
+  changed_when: false
+
+- name: Resolve Portainer endpoint id
+  ansible.builtin.set_fact:
+    pt_endpoint_id: "{{ (portainer_telegram_portainer_endpoint_id if portainer_telegram_portainer_endpoint_id | string | length > 0 else (pt_endpoints.json | selectattr('Status', '==', 1) | map(attribute='Id') | first | default('', true))) | string }}"
+
+- name: Require Portainer endpoint
+  ansible.builtin.assert:
+    that: pt_endpoint_id | string | length > 0
+    quiet: true
+
+- name: List Portainer stacks
+  ansible.builtin.uri:
+    url: "{{ portainer_telegram_api_url }}/api/stacks"
+    method: GET
+    headers:
+      X-API-Key: "{{ portainer_telegram_api_key }}"
+    validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+    status_code:
+      - 200
+  register: pt_stacks
+  changed_when: false
+
+- name: Resolve existing stack id
+  ansible.builtin.set_fact:
+    pt_stack_id: "{{ (pt_stacks.json | selectattr('Name', '==', portainer_telegram_stack_name) | map(attribute='Id') | list | first | default('', true)) | string }}"
+
+- name: Create Portainer stack
+  ansible.builtin.uri:
+    url: "{{ portainer_telegram_api_url }}/api/stacks?type=2&method=string&endpointId={{ pt_endpoint_id }}"
+    method: POST
+    headers:
+      X-API-Key: "{{ portainer_telegram_api_key }}"
+    validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+    body_format: json
+    body:
+      name: "{{ portainer_telegram_stack_name }}"
+      stackFileContent: "{{ portainer_telegram_stack_file }}"
+    status_code:
+      - 200
+      - 201
+  register: pt_create
+  when: pt_stack_id | string | length == 0
+  changed_when: pt_create.status in [200, 201]
+
+- name: Fetch current stack file
+  ansible.builtin.uri:
+    url: "{{ portainer_telegram_api_url }}/api/stacks/{{ pt_stack_id }}/file"
+    method: GET
+    headers:
+      X-API-Key: "{{ portainer_telegram_api_key }}"
+    validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+    status_code:
+      - 200
+  register: pt_current_file
+  when: pt_stack_id | string | length > 0
+  changed_when: false
+
+- name: Update Portainer stack
+  ansible.builtin.uri:
+    url: "{{ portainer_telegram_api_url }}/api/stacks/{{ pt_stack_id }}?endpointId={{ pt_endpoint_id }}"
+    method: PUT
+    headers:
+      X-API-Key: "{{ portainer_telegram_api_key }}"
+    validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+    body_format: json
+    body:
+      stackFileContent: "{{ portainer_telegram_stack_file }}"
+      pullImage: true
+      prune: false
+    status_code:
+      - 200
+  register: pt_update
+  when:
+    - pt_stack_id | string | length > 0
+    - pt_current_file.json.StackFileContent | trim != portainer_telegram_stack_file | trim
+  changed_when: pt_update.status == 200

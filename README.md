@@ -73,6 +73,46 @@ and title in the message). The tag equals the version the ci job assigned to
 the merge commit, so artifact and tag always match. Push a manual tag
 (e.g. `v2.0.0`) to bump major/minor — releases after it continue from there.
 
+## Roles
+
+- `ansible_pull` — installs ansible and the systemd timer for self-updates.
+- `docker` — Docker Engine + compose plugin from the official apt repository
+  (Debian, Ubuntu, Raspberry Pi OS; arm64/armhf/amd64). Add users to the docker
+  group via `docker_users`.
+- `portainer` — Portainer CE for the local Docker environment (UI on
+  `https://<host>:9443`, HTTP API on 9000, Edge tunnel on 8000; first admin
+  user is created on first visit). Depends on `docker`.
+- `portainer_telegram` — deploys
+  [portainer-telegram](https://github.com/SozinovD/portainer-telegram) as a
+  Portainer stack via the Portainer API (idempotent: creates or updates on
+  content change). Requires an initialized Portainer (admin account created)
+  and an API key (My Account → API Tokens). Minimal `host_vars`:
+
+  ```yaml
+  portainer_telegram_bot_token: "123456:ABC-DEF..."
+  portainer_telegram_api_key: "ptr_..."
+  portainer_telegram_allowed_chat_ids: "123456789"   # strongly recommended
+  ```
+
+  Optional: `portainer_telegram_image`, `portainer_telegram_stack_name`,
+  `portainer_telegram_portainer_url` (default `http://host.docker.internal:9000`),
+  `portainer_telegram_portainer_endpoint_id`, `portainer_telegram_extra_env`.
+  Depends on `portainer`.
+- `hermes_agent` — hermes agent container managed via docker compose. Set the
+  image and runtime settings in `host_vars/<hostname>.yml`:
+
+  ```yaml
+  hermes_agent_image: ghcr.io/sozinovd/hermes-agent:latest
+  hermes_agent_ports:
+    - "8080:8080"
+  hermes_agent_volumes:
+    - /opt/hermes-agent/data:/data
+  hermes_agent_env:
+    HERMES_LOG_LEVEL: info
+  ```
+
+  Depends on `docker`.
+
 ## Repo structure
 
 ```
@@ -82,6 +122,7 @@ host_vars/<hostname>.yml        per-device variables and list of roles
 roles/ansible_pull/             installs ansible, service, and the update timer
 roles/docker/                   Docker Engine + compose plugin
 roles/portainer/                Portainer CE (docker backend)
+roles/portainer_telegram/       portainer-telegram as a Portainer stack
 roles/hermes_agent/             hermes agent in docker
 roles/<other>/                  your device roles (users, packages, services)
 ```

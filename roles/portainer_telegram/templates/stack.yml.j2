@@ -1,0 +1,20 @@
+services:
+  portainer-telegram:
+    image: {{ portainer_telegram_image }}
+    container_name: portainer-telegram
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: {{ portainer_telegram_bot_token | to_json }}
+      PORTAINER_URL: {{ portainer_telegram_portainer_url | to_json }}
+      PORTAINER_API_KEY: {{ portainer_telegram_api_key | to_json }}
+{% if portainer_telegram_allowed_chat_ids | string | length > 0 %}
+      ALLOWED_CHAT_IDS: {{ portainer_telegram_allowed_chat_ids | to_json }}
+{% endif %}
+{% if portainer_telegram_portainer_endpoint_id | string | length > 0 %}
+      PORTAINER_ENDPOINT_ID: {{ portainer_telegram_portainer_endpoint_id | to_json }}
+{% endif %}
+{% for key, value in portainer_telegram_extra_env.items() %}
+      {{ key }}: {{ value | to_json }}
+{% endfor %}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

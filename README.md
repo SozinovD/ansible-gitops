@@ -55,6 +55,24 @@ sudo systemctl start ansible-pull.service  # run right now
 journalctl -u ansible-pull.service -f   # logs
 ```
 
+## Versioning and CI
+
+Every push to any branch runs `.github/workflows/ci.yml`: YAML validation,
+ansible syntax-check, then a versioned `sbc-tools-<version>.zip` artifact.
+
+Version scheme (semver):
+
+- commits on `main` — clean `X.Y.Z`: latest `vX.Y.Z` tag plus one patch per
+  commit since the tag (`0.0.<commit count>` until the first tag);
+- commits on any other branch — `<branch>-<short sha>` (branch name sanitized
+  to `[a-zA-Z0-9._-]`, so non-ASCII names fall back to `branch-<sha>`).
+
+Every PR merged into `main` is automatically tagged `vX.Y.Z` by
+`.github/workflows/release.yml` (annotated tag on the merge commit, PR number
+and title in the message). The tag equals the version the ci job assigned to
+the merge commit, so artifact and tag always match. Push a manual tag
+(e.g. `v2.0.0`) to bump major/minor — releases after it continue from there.
+
 ## Repo structure
 
 ```

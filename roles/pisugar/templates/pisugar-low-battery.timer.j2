@@ -1,0 +1,10 @@
+[Unit]
+Description=PiSugar low battery check timer
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec={{ pisugar_check_interval }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

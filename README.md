@@ -142,6 +142,25 @@ the merge commit, so artifact and tag always match. Push a manual tag
   ```
 
   Depends on `docker`.
+- `pisugar` — PiSugar battery hat (PiSugar 2 / 3): detects any active I2C bus
+  (`/dev/i2c-*`; on Raspberry Pi OS it is enabled automatically via
+  raspi-config with a one-time reboot — disable with
+  `pisugar_auto_reboot: false`), installs the official `pisugar-server` +
+  `pisugar-poweroff` packages (web UI on `http://<host>:8421`), and runs a
+  low-battery watchdog: a systemd timer checks the battery and shuts the
+  device down when the level is at or below `pisugar_low_battery_level`
+  (default 15%) **and** it is not charging.
+  On Radxa/Armbian there is no raspi-config: enable the board's I2C overlay
+  for the 40-pin header yourself (uconfig on Radxa images, `overlays=` in
+  `/boot/armbianEnv.txt` on Armbian), reboot, and the role proceeds; if the
+  header bus is not bus 1, point pisugar-server at the right device in
+  `/etc/default/pisugar-server`. Settings in `host_vars/<hostname>.yml`:
+
+  ```yaml
+  pisugar_model: "PiSugar 3"   # or "PiSugar 2 (4-LEDs)", "PiSugar 2 (2-LEDs)", "PiSugar 2 Pro"
+  pisugar_low_battery_level: 15
+  pisugar_check_interval: 1min
+  ```
 
 ## Repo structure
 
@@ -154,5 +173,6 @@ roles/docker/                   Docker Engine + compose plugin
 roles/portainer/                Portainer CE (docker backend)
 roles/portainer_telegram/       portainer-telegram as a Portainer stack
 roles/hermes_agent/             hermes agent in docker
+roles/pisugar/                  PiSugar battery hat, low battery shutdown
 roles/<other>/                  your device roles (users, packages, services)
 ```

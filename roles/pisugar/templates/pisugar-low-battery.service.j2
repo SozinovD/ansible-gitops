@@ -1,0 +1,8 @@
+[Unit]
+Description=PiSugar low battery check
+After=pisugar-server.service
+Wants=pisugar-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/pisugar-low-battery-check

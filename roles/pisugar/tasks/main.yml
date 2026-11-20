@@ -1,0 +1,91 @@
+---
+- name: Detect active I2C buses
+  ansible.builtin.find:
+    paths: /dev
+    patterns: i2c-*
+    file_type: any
+  register: pisugar_i2c_buses
+
+- name: Check for raspi-config
+  ansible.builtin.stat:
+    path: /usr/bin/raspi-config
+  register: pisugar_raspi_config
+
+- name: Enable I2C interface
+  ansible.builtin.command:
+    cmd: raspi-config nonint do_i2c 0
+  when: pisugar_i2c_buses.files | length == 0 and pisugar_raspi_config.stat.exists
+  register: pisugar_i2c_enable
+  changed_when: pisugar_i2c_enable.rc == 0
+  notify: Reboot for I2C
+
+- name: Mark reboot as pending
+  ansible.builtin.set_fact:
+    pisugar_reboot_needed: true
+  when: pisugar_i2c_enable is changed
+  changed_when: false
+
+- name: Refuse to continue without I2C
+  ansible.builtin.fail:
+    msg: >-
+      No active I2C bus found (/dev/i2c-*). Enable the I2C interface for your
+      board and re-run: Raspberry Pi OS - raspi-config nonint do_i2c 0;
+      Armbian - add the board i2c overlay to 'overlays=' in
+      /boot/armbianEnv.txt (or armbian-config); Radxa official images -
+      enable the i2c overlay via uconfig / vendor configuration. Reboot
+      afterwards. If the header bus is not bus 1, point pisugar-server at
+      the right device in /etc/default/pisugar-server (see
+      https://github.com/PiSugar/pisugar-power-manager-rs).
+  when: pisugar_i2c_buses.files | length == 0 and pisugar_i2c_enable is skipped
+
+- name: Check for installed pisugar-server
+  ansible.builtin.stat:
+    path: /usr/bin/pisugar-server
+  register: pisugar_server_bin
+
+- name: Download PiSugar installer
+  ansible.builtin.get_url:
+    url: https://cdn.pisugar.com/release/pisugar-power-manager.sh
+    dest: /tmp/pisugar-power-manager.sh
+    mode: "0755"
+  when: not pisugar_server_bin.stat.exists
+
+- name: Install PiSugar power manager
+  ansible.builtin.command:
+    cmd: bash /tmp/pisugar-power-manager.sh --non-interactive --model '{{ pisugar_model }}'
+    creates: /usr/bin/pisugar-server
+  when: not pisugar_server_bin.stat.exists
+
+- name: Ensure PiSugar services are enabled and started
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - pisugar-server.service
+    - pisugar-poweroff.service
+  when: not pisugar_reboot_needed | default(false)
+
+- name: Deploy low battery check script
+  ansible.builtin.template:
+    src: pisugar-low-battery-check.py.j2
+    dest: /usr/local/bin/pisugar-low-battery-check
+    mode: "0755"
+  notify: Restart pisugar low battery timer
+
+- name: Deploy low battery check units
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: "0644"
+  loop:
+    - pisugar-low-battery.service
+    - pisugar-low-battery.timer
+  notify: Restart pisugar low battery timer
+
+- name: Enable low battery check timer
+  ansible.builtin.systemd_service:
+    name: pisugar-low-battery.timer
+    state: started
+    enabled: true
+  when: not pisugar_reboot_needed | default(false)

@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import socket
+import subprocess
+import sys
+
+SOCKET_PATH = "/tmp/pisugar-server.sock"
+LOW_LEVEL = {{ pisugar_low_battery_level }}
+
+
+def query(command):
+    client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    client.settimeout(5)
+    try:
+        client.connect(SOCKET_PATH)
+        client.sendall((command + "\n").encode())
+        response = client.recv(4096)
+    finally:
+        client.close()
+    return response.decode(errors="replace").strip()
+
+
+def value(command):
+    response = query(command)
+    if not response or response.startswith("error"):
+        raise RuntimeError(f"{command} -> {response!r}")
+    return response.split(":")[-1].strip()
+
+
+def as_bool(command):
+    return value(command).lower() == "true"
+
+
+def is_charging():
+    plugged = as_bool("get battery_power_plugged")
+    allow_charging = as_bool("get battery_allow_charging")
+    return plugged and allow_charging
+
+
+def main():
+    try:
+        battery = float(value("get battery"))
+        try:
+            charging = is_charging()
+        except RuntimeError:
+            charging = as_bool("get battery_charging")
+    except (OSError, RuntimeError, ValueError) as error:
+        print(f"pisugar check failed: {error}", file=sys.stderr)
+        return 1
+    print(f"battery={battery:.0f}% charging={charging}")
+    if charging or battery > LOW_LEVEL:
+        return 0
+    print(f"battery {battery:.0f}% and not charging, shutting down")
+    subprocess.run(["/sbin/shutdown", "-h", "now"], check=False)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

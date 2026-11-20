@@ -1,0 +1,11 @@
+---
+portainer_telegram_image: ghcr.io/sozinovd/portainer-telegram:latest
+portainer_telegram_stack_name: portainer-telegram
+portainer_telegram_bot_token: ""
+portainer_telegram_api_key: ""
+portainer_telegram_portainer_url: http://host.docker.internal:9000
+portainer_telegram_allowed_chat_ids: ""
+portainer_telegram_portainer_endpoint_id: ""
+portainer_telegram_extra_env: {}
+portainer_telegram_api_url: https://localhost:9443
+portainer_telegram_api_validate_certs: false

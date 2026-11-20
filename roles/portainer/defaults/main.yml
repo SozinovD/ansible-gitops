@@ -4,6 +4,7 @@ portainer_compose_dir: /opt/portainer
 portainer_restart_policy: unless-stopped
 portainer_ports:
   - "9443:9443"
+  - "9000:9000"
   - "8000:8000"
 portainer_volumes:
   - /var/run/docker.sock:/var/run/docker.sock

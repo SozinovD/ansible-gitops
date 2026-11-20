@@ -7,3 +7,7 @@ sbc_extra_roles:
 
 hermes_agent_env:
   HERMES_LOG_LEVEL: info
+
+# portainer_telegram_bot_token: "123456:ABC-DEF..."
+# portainer_telegram_api_key: "ptr_..."
+# portainer_telegram_allowed_chat_ids: "123456789"

@@ -1,0 +1,19 @@
+---
+common_packages:
+  - vim
+  - tmux
+  - htop
+  - curl
+  - wget
+  - git
+  - jq
+  - rsync
+  - tree
+  - unzip
+common_shell_aliases:
+  ll: ls -alF
+  la: ls -A
+  grep: grep --color=auto
+  tmuxx: tmux a || tmux
+common_editor: vim
+common_profile_d_file: /etc/profile.d/90-common.sh

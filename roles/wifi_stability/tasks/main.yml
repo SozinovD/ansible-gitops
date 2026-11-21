@@ -1,0 +1,52 @@
+---
+- name: Require Debian-based OS
+  ansible.builtin.assert:
+    that: ansible_facts['os_family'] == 'Debian'
+    quiet: true
+
+- name: Arm systemd hardware watchdog
+  ansible.builtin.copy:
+    content: |
+      [Manager]
+      RuntimeWatchdogSec={{ wifi_stability_watchdog_sec }}
+      RebootWatchdogSec={{ wifi_stability_reboot_watchdog_sec }}
+    dest: /etc/systemd/system.conf.d/watchdog.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd manager
+
+- name: Mask bluetooth
+  ansible.builtin.systemd:
+    name: bluetooth.service
+    state: stopped
+    enabled: false
+    masked: true
+  when: wifi_stability_mask_bluetooth | bool
+
+- name: Check for netplan wpa_supplicant unit
+  ansible.builtin.stat:
+    path: "/run/systemd/generator.late/netplan-wpa-{{ wifi_stability_interface }}.service"
+  register: wifi_stability_netplan_wpa
+
+- name: Create wpa_supplicant override config
+  ansible.builtin.copy:
+    content: "p2p_disabled=1\n"
+    dest: /etc/wpa_supplicant/override.conf
+    owner: root
+    group: root
+    mode: "0644"
+  when: wifi_stability_disable_p2p | bool and wifi_stability_netplan_wpa.stat.exists
+
+- name: Create netplan wpa_supplicant unit drop-in
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/netplan-wpa-{{ wifi_stability_interface }}.service.d/override.conf"
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=/sbin/wpa_supplicant -c /run/netplan/wpa-{{ wifi_stability_interface }}.conf -I /etc/wpa_supplicant/override.conf -i {{ wifi_stability_interface }} -Dnl80211,wext
+  when: wifi_stability_disable_p2p | bool and wifi_stability_netplan_wpa.stat.exists
+  notify: Restart netplan wpa_supplicant

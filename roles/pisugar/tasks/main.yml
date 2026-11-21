@@ -56,14 +56,17 @@
     creates: /usr/bin/pisugar-server
   when: not pisugar_server_bin.stat.exists
 
-- name: Ensure PiSugar services are enabled and started
+- name: Ensure PiSugar server is enabled and started
   ansible.builtin.systemd_service:
-    name: "{{ item }}"
+    name: pisugar-server.service
     state: started
     enabled: true
-  loop:
-    - pisugar-server.service
-    - pisugar-poweroff.service
+  when: not pisugar_reboot_needed | default(false)
+
+- name: Ensure PiSugar poweroff hook is enabled
+  ansible.builtin.systemd_service:
+    name: pisugar-poweroff.service
+    enabled: true
   when: not pisugar_reboot_needed | default(false)
 
 - name: Deploy low battery check script

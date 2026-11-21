@@ -1,0 +1,10 @@
+---
+- name: Reload systemd manager
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart netplan wpa supplicant
+  ansible.builtin.systemd:
+    name: "netplan-wpa-{{ wifi_stability_interface }}"
+    state: restarted
+    daemon_reload: true

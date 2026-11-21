@@ -1,0 +1,6 @@
+---
+wifi_stability_interface: wlan0
+wifi_stability_watchdog_sec: 30
+wifi_stability_reboot_watchdog_sec: 5min
+wifi_stability_mask_bluetooth: true
+wifi_stability_disable_p2p: true

@@ -135,6 +135,7 @@ assigned to the commit, so artifact and tag always match. Push a manual tag
 | [`hermes_agent`](roles/hermes_agent/) | hermes agent in docker |
 | [`pisugar`](roles/pisugar/) | PiSugar battery hat, low battery shutdown |
 | [`wifi_hotspot`](roles/wifi_hotspot/) | sbc-wifi-hotspot in docker |
+| [`wifi_stability`](roles/wifi_stability/) | watchdog + AIC8800 wifi freeze mitigations |
 
 Details, variables and dependencies are documented in each role's `README.md`.
 
@@ -153,5 +154,6 @@ roles/portainer_telegram/       portainer-telegram as a Portainer stack
 roles/hermes_agent/             hermes agent in docker
 roles/pisugar/                  PiSugar battery hat, low battery shutdown
 roles/wifi_hotspot/             sbc-wifi-hotspot in docker
+roles/wifi_stability/           watchdog + AIC8800 wifi freeze mitigations
 roles/<other>/                  your device roles (users, packages, services)
 ```

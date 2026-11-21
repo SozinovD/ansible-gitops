@@ -45,6 +45,16 @@
     timeout: 120
   when: portainer_admin_check.status != 204
 
+- name: Read Portainer setup token
+  ansible.builtin.command:
+    cmd: docker logs portainer
+  register: portainer_logs
+  changed_when: false
+  no_log: true
+  when:
+    - portainer_admin_check.status != 204
+    - portainer_admin_password is defined
+
 - name: Create initial admin user
   ansible.builtin.uri:
     url: "{{ portainer_api_url }}/api/users/admin/init"
@@ -53,10 +63,15 @@
     body:
       username: "{{ portainer_admin_user }}"
       password: "{{ portainer_admin_password }}"
+    headers:
+      X-Setup-Token: "{{ portainer_logs.stdout | regex_search('setup_token=[0-9a-f]+') | default('') | regex_replace('setup_token=', '') }}"
     status_code: [200, 409]
     validate_certs: false
   no_log: true
   register: portainer_admin_init
+  until: portainer_admin_init.status | default(0) in [200, 409]
+  retries: 10
+  delay: 3
   changed_when: portainer_admin_init.status == 200
   failed_when: portainer_admin_init.status not in [200, 409] or
     (portainer_admin_init.status == 409 and

@@ -15,9 +15,10 @@ project.
   lockout, so the UI is always usable.
 - If `portainer_admin_password` is set (device-local secret, see repo
   "Secrets"), the role also creates the initial admin user itself via
-  `POST /api/users/admin/init`; otherwise the user completes the setup form
-  manually within 5 minutes after the role run. Password must be at least
-  12 characters long.
+  `POST /api/users/admin/init`, authenticating with the `X-Setup-Token`
+  printed in the container logs at startup; otherwise the user completes the
+  setup form manually within 5 minutes after the role run. Password must be
+  at least 12 characters long.
 
 ## Variables
 

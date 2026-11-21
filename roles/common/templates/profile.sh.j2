@@ -1,0 +1,7 @@
+{% for alias, command in common_shell_aliases.items() -%}
+alias {{ alias }}='{{ command }}'
+{% endfor %}
+{% if common_editor %}
+export EDITOR={{ common_editor }}
+export VISUAL={{ common_editor }}
+{% endif %}

@@ -127,6 +127,7 @@ the merge commit, so artifact and tag always match. Push a manual tag
 | Role | Purpose |
 | --- | --- |
 | [`ansible_pull`](roles/ansible_pull/) | ansible + systemd timer for self-updates |
+| [`common`](roles/common/) | base packages, shell aliases and editor |
 | [`docker`](roles/docker/) | Docker Engine + compose plugin |
 | [`portainer`](roles/portainer/) | Portainer CE for the local docker |
 | [`portainer_telegram`](roles/portainer_telegram/) | portainer-telegram as a Portainer stack |
@@ -144,6 +145,7 @@ bootstrap.sh                    initial setup
 examples/                       sample /etc/ansible-gitops/secrets.yml and roles.yml
 host_vars/<hostname>.yml        per-device variables and list of roles
 roles/ansible_pull/             installs ansible, service, and the update timer
+roles/common/                   base packages, shell aliases and editor
 roles/docker/                   Docker Engine + compose plugin
 roles/portainer/                Portainer CE (docker backend)
 roles/portainer_telegram/       portainer-telegram as a Portainer stack

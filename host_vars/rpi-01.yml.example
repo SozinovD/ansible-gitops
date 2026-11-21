@@ -2,10 +2,18 @@
 ansible_pull_interval: 15min
 
 sbc_extra_roles:
+  - common
   - portainer
   - hermes_agent
   # - pisugar
   # - wifi_hotspot
+
+# common_packages:
+#   - vim
+#   - tmux
+# common_shell_aliases:
+#   ll: ls -alF
+# common_editor: vim
 
 # pisugar_model: "PiSugar 3"
 # pisugar_low_battery_level: 15

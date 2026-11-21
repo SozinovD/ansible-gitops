@@ -10,8 +10,9 @@ project.
 - UI: `https://<host>:9443`, HTTP API: `9000`, Edge tunnel: `8000`.
 - Portainer locks itself ("timed out for security purposes") if the initial
   admin user is not created within 5 minutes after start. The role detects
-  this (via `GET /api/users/admin/check`) and restarts the container to reset
-  the lockout, so the UI is always usable.
+  this (via `GET /api/users/admin/check`: 204 = admin exists, 404 = not
+  initialized, 303 = timed out) and restarts the container to reset the
+  lockout, so the UI is always usable.
 - If `portainer_admin_password` is set (device-local secret, see repo
   "Secrets"), the role also creates the initial admin user itself via
   `POST /api/users/admin/init`; otherwise the user completes the setup form

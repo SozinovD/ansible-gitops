@@ -27,7 +27,8 @@
   ansible.builtin.uri:
     url: "{{ portainer_api_url }}/api/users/admin/check"
     method: GET
-    status_code: [204, 404]
+    status_code: [204, 303, 404]
+    follow_redirects: none
     validate_certs: false
   register: portainer_admin_check
 

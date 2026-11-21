@@ -1,5 +1,5 @@
 ---
-# Lives on the device as /etc/sbc-tools/roles.yml (root-only, chmod 600).
+# Lives on the device as /etc/ansible-gitops/roles.yml (root-only, chmod 600).
 # Roles listed here are appended to sbc_extra_roles from
 # host_vars/<hostname>.yml (after the repo list, duplicates skipped).
 

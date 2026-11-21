@@ -22,7 +22,7 @@ Settings in `host_vars/<hostname>.yml`:
 ```yaml
 wifi_hotspot_interface: mlan0     # wlan0 by default, mlan0 on Radxa Zero 3W
 wifi_hotspot_ap_ssid: SBC-Hotspot
-wifi_hotspot_ap_passphrase: change-me   # or put it in /etc/sbc-tools/secrets.yml
+wifi_hotspot_ap_passphrase: change-me   # or put it in /etc/ansible-gitops/secrets.yml
 wifi_hotspot_env:                # any other service variables
   AP_CHANNEL: "6"
   MONITOR_INTERVAL: "30"

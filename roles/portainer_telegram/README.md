@@ -9,7 +9,7 @@ the stack when the definition changes).
 - Initialized Portainer: the admin account must already exist (open the UI
   once after applying the `portainer` role).
 - A Portainer API key: My Account → API Tokens. Put it in
-  `/etc/sbc-tools/secrets.yml` on the device, not in this repo:
+  `/etc/ansible-gitops/secrets.yml` on the device, not in this repo:
 
 ```yaml
 portainer_telegram_bot_token: "123456:ABC-DEF..."

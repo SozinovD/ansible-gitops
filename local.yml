@@ -5,19 +5,19 @@
   pre_tasks:
     - name: Check for host secrets file
       ansible.builtin.stat:
-        path: /etc/sbc-tools/secrets.yml
+        path: /etc/ansible-gitops/secrets.yml
       register: sbc_secrets_file
     - name: Load host secrets
       ansible.builtin.include_vars:
-        file: /etc/sbc-tools/secrets.yml
+        file: /etc/ansible-gitops/secrets.yml
       when: sbc_secrets_file.stat.exists
     - name: Check for local roles file
       ansible.builtin.stat:
-        path: /etc/sbc-tools/roles.yml
+        path: /etc/ansible-gitops/roles.yml
       register: sbc_local_roles_file
     - name: Load local roles
       ansible.builtin.include_vars:
-        file: /etc/sbc-tools/roles.yml
+        file: /etc/ansible-gitops/roles.yml
         name: sbc_local_roles
       when: sbc_local_roles_file.stat.exists
     - name: Merge local roles into sbc_extra_roles

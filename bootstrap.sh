@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-git@github.com:SozinovD/sbc-tools.git}"
+REPO_URL="${REPO_URL:-git@github.com:SozinovD/ansible-gitops.git}"
 BRANCH="${BRANCH:-main}"
 DEPLOY_KEY="${DEPLOY_KEY:-}"
 WORKDIR="$(mktemp -d)"

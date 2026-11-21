@@ -18,7 +18,7 @@ Debian-based OS on ARM64: Raspberry Pi OS, Armbian / Radxa official images
 
    ```bash
    ssh-keygen -t ed25519 -f id_ed25519 -N ""   # add the .pub as a deploy key in GitHub
-   DEPLOY_KEY=./id_ed25519 ./bootstrap.sh
+   REPO_URL=git@github.com:SozinovD/ansible-gitops.git DEPLOY_KEY=./id_ed25519 ./bootstrap.sh
    ```
 
 3. If the repo is public, it is enough to do:

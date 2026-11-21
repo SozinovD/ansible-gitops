@@ -19,10 +19,10 @@ Defaults in [defaults/main.yml](defaults/main.yml):
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `ansible_pull_repo_url` | `git@github.com:SozinovD/ansible-gitops.git` | repo to pull |
+| `ansible_pull_repo_url` | `https://github.com/SozinovD/ansible-gitops.git` | repo to pull |
 | `ansible_pull_checkout` | `main` | branch to track |
 | `ansible_pull_playbook` | `local.yml` | playbook to apply |
-| `ansible_pull_inventory` | `"{{ ansible_hostname }},"` | inventory (the device itself) |
+| `ansible_pull_inventory` | `"{{ ansible_facts['hostname'] }},"` | inventory (the device itself) |
 | `ansible_pull_workdir` | `/var/lib/ansible-pull` | checkout directory |
 | `ansible_pull_interval` | `30min` | timer interval |
 | `ansible_pull_on_boot_sec` | `5min` | first run after boot |

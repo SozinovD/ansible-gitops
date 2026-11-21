@@ -1,29 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-git@github.com:SozinovD/ansible-gitops.git}"
+REPO_URL="${REPO_URL:-https://github.com/SozinovD/ansible-gitops.git}"
 BRANCH="${BRANCH:-main}"
 DEPLOY_KEY="${DEPLOY_KEY:-}"
 WORKDIR="$(mktemp -d)"
 
+SUDO=""
+if [ "$(id -u)" -ne 0 ]; then
+  SUDO="sudo"
+fi
+
 cleanup() {
-  rm -rf "$WORKDIR"
+  $SUDO rm -rf "$WORKDIR"
 }
 trap cleanup EXIT
 
-if [ "$(id -u)" -ne 0 ]; then
-  exec sudo -E "$0" "$@"
-fi
-
-apt-get update
-apt-get install -y ansible git python3-apt
+$SUDO apt-get update
+$SUDO apt-get install -y ansible git python3-apt
 
 if [ -n "$DEPLOY_KEY" ]; then
-  install -d -m 0700 /etc/ansible-pull
-  install -m 0600 "$DEPLOY_KEY" /etc/ansible-pull/id_ed25519
+  $SUDO install -d -m 0700 /etc/ansible-pull
+  $SUDO install -m 0600 "$DEPLOY_KEY" /etc/ansible-pull/id_ed25519
+  $SUDO GIT_SSH_COMMAND="ssh -i /etc/ansible-pull/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+    git clone --branch "$BRANCH" "$REPO_URL" "$WORKDIR"
+else
+  git clone --branch "$BRANCH" "$REPO_URL" "$WORKDIR"
 fi
 
-git clone --branch "$BRANCH" "$REPO_URL" "$WORKDIR"
-
 cd "$WORKDIR"
-ansible-playbook -i "$(hostname) ansible_connection=local," local.yml
+$SUDO ansible-playbook -i "$(hostname)," -c local local.yml

@@ -1,8 +1,8 @@
 ---
-ansible_pull_repo_url: git@github.com:SozinovD/ansible-gitops.git
+ansible_pull_repo_url: https://github.com/SozinovD/ansible-gitops.git
 ansible_pull_checkout: main
 ansible_pull_playbook: local.yml
-ansible_pull_inventory: "{{ ansible_hostname }},"
+ansible_pull_inventory: "{{ ansible_facts['hostname'] }},"
 ansible_pull_workdir: /var/lib/ansible-pull
 ansible_pull_interval: 30min
 ansible_pull_on_boot_sec: 5min

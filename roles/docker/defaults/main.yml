@@ -1,4 +1,4 @@
 ---
-docker_apt_dist: "{{ 'raspbian' if ansible_distribution == 'Raspbian' else ansible_distribution | lower }}"
-docker_apt_arch: "{{ { 'aarch64': 'arm64', 'x86_64': 'amd64', 'armv7l': 'armhf' }[ansible_architecture] }}"
+docker_apt_dist: "{{ 'raspbian' if ansible_facts['distribution'] == 'Raspbian' else ansible_facts['distribution'] | lower }}"
+docker_apt_arch: "{{ { 'aarch64': 'arm64', 'x86_64': 'amd64', 'armv7l': 'armhf' }[ansible_facts['architecture']] }}"
 docker_users: []

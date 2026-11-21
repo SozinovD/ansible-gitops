@@ -22,7 +22,7 @@
 
 - name: Download Docker signing key
   ansible.builtin.get_url:
-    url: https://download.docker.com/{{ docker_apt_dist }}/gpg
+    url: https://download.docker.com/linux/{{ docker_apt_dist }}/gpg
     dest: /etc/apt/keyrings/docker.asc
     mode: "0644"
 

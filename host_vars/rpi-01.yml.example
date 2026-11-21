@@ -22,3 +22,6 @@ hermes_agent_env:
 # /etc/sbc-tools/secrets.yml — see README "Secrets". Example:
 #   portainer_telegram_bot_token: "123456:ABC-DEF..."
 #   portainer_telegram_api_key: "ptr_..."
+
+# Extra roles can also be added locally on the device in
+# /etc/sbc-tools/roles.yml — see README "Local roles".

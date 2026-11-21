@@ -42,7 +42,8 @@ the systemd timer.
   `local.yml` against itself (inventory: `<hostname>,`).
 - Device-specific settings and roles: `host_vars/<hostname>.yml`
   (see `host_vars/rpi-01.yml.example`), add roles for the device to
-  `sbc_extra_roles`.
+  `sbc_extra_roles`. A device can also add roles locally without touching the
+  repo — see [Local roles](#local-roles).
 - Role defaults (repo, branch, interval): `roles/ansible_pull/defaults/main.yml`,
   can be overridden in `host_vars/<hostname>.yml`.
 
@@ -71,6 +72,26 @@ sudo chmod 600 /etc/sbc-tools/secrets.yml
 ```
 
 The file is outside the repo and survives ansible-pull runs untouched.
+A sample with all variables the roles read from it:
+[`examples/secrets.yml.example`](examples/secrets.yml.example).
+
+## Local roles
+
+A device can extend its role list locally, without a commit to this repo:
+list extra roles in `/etc/sbc-tools/roles.yml` (root-only, `chmod 600`).
+`local.yml` loads it before applying roles and appends them to
+`sbc_extra_roles` from `host_vars` (after the repo list, duplicates skipped):
+
+```yaml
+# /etc/sbc-tools/roles.yml
+sbc_extra_roles:
+  - wifi_hotspot
+```
+
+Variables for locally added roles can live in the same file or in
+`/etc/sbc-tools/secrets.yml`. Both files are outside the repo and survive
+ansible-pull runs untouched. A sample:
+[`examples/roles.yml.example`](examples/roles.yml.example).
 
 ## Diagnostics
 
@@ -187,6 +208,7 @@ the merge commit, so artifact and tag always match. Push a manual tag
 ```
 local.yml                       entry playbook for ansible-pull
 bootstrap.sh                    initial setup
+examples/                       sample /etc/sbc-tools/secrets.yml and roles.yml
 host_vars/<hostname>.yml        per-device variables and list of roles
 roles/ansible_pull/             installs ansible, service, and the update timer
 roles/docker/                   Docker Engine + compose plugin

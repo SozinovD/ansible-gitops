@@ -124,84 +124,17 @@ the merge commit, so artifact and tag always match. Push a manual tag
 
 ## Roles
 
-- `ansible_pull` — installs ansible and the systemd timer for self-updates.
-- `docker` — Docker Engine + compose plugin from the official apt repository
-  (Debian, Ubuntu, Raspberry Pi OS; arm64/armhf/amd64). Add users to the docker
-  group via `docker_users`.
-- `portainer` — Portainer CE for the local Docker environment (UI on
-  `https://<host>:9443`, HTTP API on 9000, Edge tunnel on 8000; first admin
-  user is created on first visit). Depends on `docker`.
-- `portainer_telegram` — deploys
-  [portainer-telegram](https://github.com/SozinovD/portainer-telegram) as a
-  Portainer stack via the Portainer API (idempotent: creates or updates on
-  content change). Requires an initialized Portainer (admin account created)
-  and an API key (My Account → API Tokens). Secrets go to
-  `/etc/sbc-tools/secrets.yml` on the device (see [Secrets](#secrets)):
+| Role | Purpose |
+| --- | --- |
+| [`ansible_pull`](roles/ansible_pull/) | ansible + systemd timer for self-updates |
+| [`docker`](roles/docker/) | Docker Engine + compose plugin |
+| [`portainer`](roles/portainer/) | Portainer CE for the local docker |
+| [`portainer_telegram`](roles/portainer_telegram/) | portainer-telegram as a Portainer stack |
+| [`hermes_agent`](roles/hermes_agent/) | hermes agent in docker |
+| [`pisugar`](roles/pisugar/) | PiSugar battery hat, low battery shutdown |
+| [`wifi_hotspot`](roles/wifi_hotspot/) | sbc-wifi-hotspot in docker |
 
-  ```yaml
-  portainer_telegram_bot_token: "123456:ABC-DEF..."
-  portainer_telegram_api_key: "ptr_..."
-  portainer_telegram_allowed_chat_ids: "123456789"   # strongly recommended
-  ```
-
-  Optional: `portainer_telegram_image`, `portainer_telegram_stack_name`,
-  `portainer_telegram_portainer_url` (default `http://host.docker.internal:9000`),
-  `portainer_telegram_portainer_endpoint_id`, `portainer_telegram_extra_env` —
-  these can live in `host_vars/<hostname>.yml`.
-  Depends on `portainer`.
-- `hermes_agent` — hermes agent container managed via docker compose. Set the
-  image and runtime settings in `host_vars/<hostname>.yml`:
-
-  ```yaml
-  hermes_agent_image: ghcr.io/sozinovd/hermes-agent:latest
-  hermes_agent_ports:
-    - "8080:8080"
-  hermes_agent_volumes:
-    - /opt/hermes-agent/data:/data
-  hermes_agent_env:
-    HERMES_LOG_LEVEL: info
-  ```
-
-  Depends on `docker`.
-- `pisugar` — PiSugar battery hat (PiSugar 2 / 3): detects any active I2C bus
-  (`/dev/i2c-*`; on Raspberry Pi OS it is enabled automatically via
-  raspi-config with a one-time reboot — disable with
-  `pisugar_auto_reboot: false`), installs the official `pisugar-server` +
-  `pisugar-poweroff` packages (web UI on `http://<host>:8421`), and runs a
-  low-battery watchdog: a systemd timer checks the battery and shuts the
-  device down when the level is at or below `pisugar_low_battery_level`
-  (default 15%) **and** it is not charging.
-  On Radxa/Armbian there is no raspi-config: enable the board's I2C overlay
-  for the 40-pin header yourself (uconfig on Radxa images, `overlays=` in
-  `/boot/armbianEnv.txt` on Armbian), reboot, and the role proceeds; if the
-  header bus is not bus 1, point pisugar-server at the right device in
-  `/etc/default/pisugar-server`. Settings in `host_vars/<hostname>.yml`:
-
-  ```yaml
-  pisugar_model: "PiSugar 3"   # or "PiSugar 2 (4-LEDs)", "PiSugar 2 (2-LEDs)", "PiSugar 2 Pro"
-  pisugar_low_battery_level: 15
-  pisugar_check_interval: 1min
-  ```
-
-- `wifi_hotspot` — [sbc-wifi-hotspot](https://github.com/SozinovD/sbc-wifi-hotspot)
-  in docker: connects to known Wi-Fi networks and, when none are around (or
-  there is no internet), raises an access point with a captive portal to pick
-  a network and enter the password. The container runs with
-  `network_mode: host` and `NET_ADMIN`/`NET_RAW`; if NetworkManager is
-  present, the interface is excluded from its control via a drop-in (known
-  networks are stored in `/var/lib/sbc-wifi-hotspot`, bind-mounted to
-  `/data`). Settings in `host_vars/<hostname>.yml`:
-
-  ```yaml
-  wifi_hotspot_interface: mlan0     # wlan0 by default, mlan0 on Radxa Zero 3W
-  wifi_hotspot_ap_ssid: SBC-Hotspot
-  wifi_hotspot_ap_passphrase: change-me   # or put it in /etc/sbc-tools/secrets.yml
-  wifi_hotspot_env:                # any other service variables
-    AP_CHANNEL: "6"
-    MONITOR_INTERVAL: "30"
-  ```
-
-  Depends on `docker`.
+Details, variables and dependencies are documented in each role's `README.md`.
 
 ## Repo structure
 

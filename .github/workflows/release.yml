@@ -1,6 +1,9 @@
 name: release
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types:
       - closed
@@ -17,13 +20,15 @@ concurrency:
 jobs:
   tag:
     name: Tag merged release
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    if: >-
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout merge commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
           fetch-depth: 0
 
       - name: Fetch tags
@@ -61,5 +66,10 @@ jobs:
           TAG="v${VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "${TAG}" -m "Release ${TAG} (PR #${PR_NUMBER}: ${PR_TITLE})"
+          if [ -n "${PR_NUMBER}" ]; then
+            git tag -a "${TAG}" -m "Release ${TAG} (PR #${PR_NUMBER}: ${PR_TITLE})"
+          else
+            SUBJECT="$(git log -1 --format=%s)"
+            git tag -a "${TAG}" -m "Release ${TAG}: ${SUBJECT}"
+          fi
           git push origin "${TAG}"

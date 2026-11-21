@@ -93,12 +93,13 @@ Note: with ansible-core ≥ 2.22 use `-i "localhost," -c local`;
   GitHub (`gh` CLI is not used). PR link after push:
   `https://github.com/SozinovD/ansible-gitops/pull/new/<branch>`.
 - After a merge: `git switch main && git pull`, then verify the new tag.
-- Versioning is tag-driven, no manual bumps: every PR merged to `main` is
-  auto-tagged `vX.Y.Z` by `.github/workflows/release.yml` (patch +1 per merge,
+- Versioning is tag-driven, no manual bumps: every PR merged to `main` and
+  every direct push to `main` is auto-tagged `vX.Y.Z` by
+  `.github/workflows/release.yml` (patch +1 per commit,
   computed from first-parent commit count). `ci.yml` builds a versioned zip
   artifact of the repo; config-only repo — no release artifacts.
 - Expect the next tag to be the current top tag + 1 patch; flag if a merge
-  did not produce it.
+  or direct push did not produce it.
 
 ## Testing limitations
 

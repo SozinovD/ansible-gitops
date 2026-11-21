@@ -116,10 +116,11 @@ Version scheme (semver):
 - commits on any other branch — `<branch>-<short sha>` (branch name sanitized
   to `[a-zA-Z0-9._-]`, so non-ASCII names fall back to `branch-<sha>`).
 
-Every PR merged into `main` is automatically tagged `vX.Y.Z` by
-`.github/workflows/release.yml` (annotated tag on the merge commit, PR number
-and title in the message). The tag equals the version the ci job assigned to
-the merge commit, so artifact and tag always match. Push a manual tag
+Every PR merged into `main` and every commit pushed directly to `main` is
+automatically tagged `vX.Y.Z` by `.github/workflows/release.yml` (annotated
+tag on the merge/push commit; PR number and title in the message for merges,
+commit subject for direct pushes). The tag equals the version the ci job
+assigned to the commit, so artifact and tag always match. Push a manual tag
 (e.g. `v2.0.0`) to bump major/minor — releases after it continue from there.
 
 ## Roles

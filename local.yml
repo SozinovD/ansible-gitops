@@ -11,6 +11,19 @@
       ansible.builtin.include_vars:
         file: /etc/sbc-tools/secrets.yml
       when: sbc_secrets_file.stat.exists
+    - name: Check for local roles file
+      ansible.builtin.stat:
+        path: /etc/sbc-tools/roles.yml
+      register: sbc_local_roles_file
+    - name: Load local roles
+      ansible.builtin.include_vars:
+        file: /etc/sbc-tools/roles.yml
+        name: sbc_local_roles
+      when: sbc_local_roles_file.stat.exists
+    - name: Merge local roles into sbc_extra_roles
+      ansible.builtin.set_fact:
+        sbc_extra_roles: "{{ sbc_extra_roles | default([]) + (sbc_local_roles.sbc_extra_roles | default([]) | difference(sbc_extra_roles | default([]))) }}"
+      when: sbc_local_roles_file.stat.exists
   roles:
     - role: ansible_pull
   tasks:

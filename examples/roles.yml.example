@@ -1,0 +1,11 @@
+---
+# Lives on the device as /etc/sbc-tools/roles.yml (root-only, chmod 600).
+# Roles listed here are appended to sbc_extra_roles from
+# host_vars/<hostname>.yml (after the repo list, duplicates skipped).
+
+sbc_extra_roles:
+  - wifi_hotspot
+
+# Variables for locally added roles can live here or in secrets.yml:
+# wifi_hotspot_interface: mlan0
+# wifi_hotspot_ap_ssid: SBC-Hotspot

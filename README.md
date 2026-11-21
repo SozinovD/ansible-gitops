@@ -1,4 +1,4 @@
-# sbc-tools
+# ansible-gitops
 
 Self-managed configuration for SBC (Raspberry Pi, Radxa) based on
 `ansible-pull`: each device pulls this repo on a schedule and applies
@@ -24,7 +24,7 @@ Debian-based OS on ARM64: Raspberry Pi OS, Armbian / Radxa official images
 3. If the repo is public, it is enough to do:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/SozinovD/sbc-tools/main/bootstrap.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/SozinovD/ansible-gitops/main/bootstrap.sh | bash
    ```
 
    (with a private repo, first `git clone` the repo to the device and run
@@ -50,12 +50,12 @@ the systemd timer.
 ## Secrets
 
 Secrets (bot tokens, API keys) never live in this repo. Each device keeps them
-in `/etc/sbc-tools/secrets.yml` (root-only, `chmod 600`), which `local.yml`
+in `/etc/ansible-gitops/secrets.yml` (root-only, `chmod 600`), which `local.yml`
 loads before applying roles — variables there override role defaults, so roles
 read them as ordinary Ansible vars:
 
 ```yaml
-# /etc/sbc-tools/secrets.yml
+# /etc/ansible-gitops/secrets.yml
 portainer_telegram_bot_token: "123456:ABC-DEF..."
 portainer_telegram_api_key: "ptr_..."
 portainer_telegram_allowed_chat_ids: "123456789"
@@ -64,11 +64,11 @@ portainer_telegram_allowed_chat_ids: "123456789"
 Create the file once per device (scp or on console):
 
 ```bash
-sudo install -d -m 700 /etc/sbc-tools
-sudo tee /etc/sbc-tools/secrets.yml >/dev/null <<'EOF'
+sudo install -d -m 700 /etc/ansible-gitops
+sudo tee /etc/ansible-gitops/secrets.yml >/dev/null <<'EOF'
 ...
 EOF
-sudo chmod 600 /etc/sbc-tools/secrets.yml
+sudo chmod 600 /etc/ansible-gitops/secrets.yml
 ```
 
 The file is outside the repo and survives ansible-pull runs untouched.
@@ -78,18 +78,18 @@ A sample with all variables the roles read from it:
 ## Local roles
 
 A device can extend its role list locally, without a commit to this repo:
-list extra roles in `/etc/sbc-tools/roles.yml` (root-only, `chmod 600`).
+list extra roles in `/etc/ansible-gitops/roles.yml` (root-only, `chmod 600`).
 `local.yml` loads it before applying roles and appends them to
 `sbc_extra_roles` from `host_vars` (after the repo list, duplicates skipped):
 
 ```yaml
-# /etc/sbc-tools/roles.yml
+# /etc/ansible-gitops/roles.yml
 sbc_extra_roles:
   - wifi_hotspot
 ```
 
 Variables for locally added roles can live in the same file or in
-`/etc/sbc-tools/secrets.yml`. Both files are outside the repo and survive
+`/etc/ansible-gitops/secrets.yml`. Both files are outside the repo and survive
 ansible-pull runs untouched. A sample:
 [`examples/roles.yml.example`](examples/roles.yml.example).
 
@@ -105,7 +105,7 @@ journalctl -u ansible-pull.service -f   # logs
 ## Versioning and CI
 
 Every push to any branch runs `.github/workflows/ci.yml`: YAML validation,
-ansible syntax-check, then a versioned `sbc-tools-<version>.zip` artifact.
+ansible syntax-check, then a versioned `ansible-gitops-<version>.zip` artifact.
 
 Version scheme (semver):
 
@@ -141,7 +141,7 @@ Details, variables and dependencies are documented in each role's `README.md`.
 ```
 local.yml                       entry playbook for ansible-pull
 bootstrap.sh                    initial setup
-examples/                       sample /etc/sbc-tools/secrets.yml and roles.yml
+examples/                       sample /etc/ansible-gitops/secrets.yml and roles.yml
 host_vars/<hostname>.yml        per-device variables and list of roles
 roles/ansible_pull/             installs ansible, service, and the update timer
 roles/docker/                   Docker Engine + compose plugin

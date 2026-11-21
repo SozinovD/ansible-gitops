@@ -32,10 +32,10 @@ Communication with the user: concise, in Russian.
      `changed_when: (stdout ~ stderr) is search('Created|Recreated|Started')`;
   4. `meta/main.yml`: `dependencies` on `docker` where applicable.
 - Secrets never live in this repo. Device-local secrets go to
-  `/etc/sbc-tools/secrets.yml` (root-only 600), which `local.yml` loads via
+  `/etc/ansible-gitops/secrets.yml` (root-only 600), which `local.yml` loads via
   `include_vars` before applying roles — roles read them as ordinary vars.
   Keep `examples/secrets.yml.example` in sync when a role adds a secret var.
-- Local role list (`/etc/sbc-tools/roles.yml`, optional on the device) is
+- Local role list (`/etc/ansible-gitops/roles.yml`, optional on the device) is
   merged into `sbc_extra_roles` by a `set_fact` in `local.yml` pre_tasks:
   appended after the `host_vars` list, duplicates skipped, order preserved
   (`+` and `| difference(...)`, not `| union(...)` — union shuffles order,
@@ -91,7 +91,7 @@ Note: with ansible-core ≥ 2.22 use `-i "localhost," -c local`;
   fresh `main`. Commit messages: imperative, one line.
 - Never commit or push without explicit user approval; the user merges PRs on
   GitHub (`gh` CLI is not used). PR link after push:
-  `https://github.com/SozinovD/sbc-tools/pull/new/<branch>`.
+  `https://github.com/SozinovD/ansible-gitops/pull/new/<branch>`.
 - After a merge: `git switch main && git pull`, then verify the new tag.
 - Versioning is tag-driven, no manual bumps: every PR merged to `main` is
   auto-tagged `vX.Y.Z` by `.github/workflows/release.yml` (patch +1 per merge,

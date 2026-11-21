@@ -1,7 +1,7 @@
 # ansible_pull
 
 Installs ansible and the systemd service + timer that keep the device in sync
-with this repo via `ansible-pull` (the self-management core of sbc-tools).
+with this repo via `ansible-pull` (the self-management core of ansible-gitops).
 This is the only role `local.yml` applies unconditionally.
 
 ## What it does
@@ -19,7 +19,7 @@ Defaults in [defaults/main.yml](defaults/main.yml):
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `ansible_pull_repo_url` | `git@github.com:SozinovD/sbc-tools.git` | repo to pull |
+| `ansible_pull_repo_url` | `git@github.com:SozinovD/ansible-gitops.git` | repo to pull |
 | `ansible_pull_checkout` | `main` | branch to track |
 | `ansible_pull_playbook` | `local.yml` | playbook to apply |
 | `ansible_pull_inventory` | `"{{ ansible_hostname }},"` | inventory (the device itself) |

@@ -92,12 +92,12 @@ jobs:
       - name: Build versioned zip
         run: |
           printf '%s' "${VERSION}" > VERSION
-          zip -r "sbc-tools-${VERSION}.zip" . \
-            -x '.git/*' '.github/*' 'sbc-tools-*.zip'
+          zip -r "ansible-gitops-${VERSION}.zip" . \
+            -x '.git/*' '.github/*' 'ansible-gitops-*.zip'
 
       - name: Publish artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sbc-tools-${{ env.VERSION }}
-          path: sbc-tools-${{ env.VERSION }}.zip
+          name: ansible-gitops-${{ env.VERSION }}
+          path: ansible-gitops-${{ env.VERSION }}.zip
           if-no-files-found: error

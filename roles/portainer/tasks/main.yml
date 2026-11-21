@@ -16,3 +16,50 @@
     cmd: docker compose --project-directory {{ portainer_compose_dir }} up --detach --pull always --remove-orphans
   register: portainer_up
   changed_when: (portainer_up.stdout ~ portainer_up.stderr) is search('Created|Recreated|Started')
+
+- name: Wait for Portainer API
+  ansible.builtin.wait_for:
+    host: "{{ portainer_api_url | urlsplit('hostname') }}"
+    port: "{{ portainer_api_url | urlsplit('port') }}"
+    timeout: 120
+
+- name: Check whether the initial admin user exists
+  ansible.builtin.uri:
+    url: "{{ portainer_api_url }}/api/users/admin/check"
+    method: GET
+    status_code: [204, 404]
+    validate_certs: false
+  register: portainer_admin_check
+
+- name: Reset Portainer setup timeout
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ portainer_compose_dir }} restart
+  changed_when: true
+  when: portainer_admin_check.status != 204
+
+- name: Wait for Portainer API after restart
+  ansible.builtin.wait_for:
+    host: "{{ portainer_api_url | urlsplit('hostname') }}"
+    port: "{{ portainer_api_url | urlsplit('port') }}"
+    timeout: 120
+  when: portainer_admin_check.status != 204
+
+- name: Create initial admin user
+  ansible.builtin.uri:
+    url: "{{ portainer_api_url }}/api/users/admin/init"
+    method: POST
+    body_format: json
+    body:
+      username: "{{ portainer_admin_user }}"
+      password: "{{ portainer_admin_password }}"
+    status_code: [200, 409]
+    validate_certs: false
+  no_log: true
+  register: portainer_admin_init
+  changed_when: portainer_admin_init.status == 200
+  failed_when: portainer_admin_init.status not in [200, 409] or
+    (portainer_admin_init.status == 409 and
+    not (portainer_admin_init.json.message | default('')) is search('already exist', ignorecase=true))
+  when:
+    - portainer_admin_check.status != 204
+    - portainer_admin_password is defined

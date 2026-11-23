@@ -1,0 +1,5 @@
+---
+radxa_i2c3_overlay: rk3568-i2c3-m0
+radxa_i2c3_overlay_dir: /boot/dtb/rockchip/overlay
+radxa_i2c3_env_file: /boot/armbianEnv.txt
+radxa_i2c3_reboot: true

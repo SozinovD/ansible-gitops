@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: SozinovD
+  description: Enable i2c3 on the 40-pin header (pins 3/5) of Radxa Zero 3 on Armbian
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - noble
+
+dependencies: []

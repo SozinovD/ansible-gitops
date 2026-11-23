@@ -1,0 +1,65 @@
+---
+- name: Check for Armbian environment file
+  ansible.builtin.stat:
+    path: "{{ radxa_i2c3_env_file }}"
+  register: radxa_i2c3_env
+
+- name: Read board device tree name
+  ansible.builtin.command:
+    cmd: "grep '^fdtfile=' {{ radxa_i2c3_env_file }}"
+  register: radxa_i2c3_fdtfile
+  changed_when: false
+  failed_when: false
+  when: radxa_i2c3_env.stat.exists
+
+- name: Detect Radxa Zero 3
+  ansible.builtin.set_fact:
+    radxa_i2c3_supported: "{{ radxa_i2c3_fdtfile.stdout is search('rk3566-radxa-zero3') }}"
+  when: radxa_i2c3_env.stat.exists
+
+- name: Skip on unsupported boards
+  ansible.builtin.debug:
+    msg: >-
+      Not a Radxa Zero 3 on Armbian ({{ radxa_i2c3_env_file }} or a matching
+      fdtfile entry not found), nothing to do.
+  when: not radxa_i2c3_supported | default(false)
+
+- name: Check for the overlay file
+  ansible.builtin.stat:
+    path: "{{ radxa_i2c3_overlay_dir }}/{{ radxa_i2c3_overlay }}.dtbo"
+  register: radxa_i2c3_dtbo
+  when: radxa_i2c3_supported | default(false)
+
+- name: Refuse to continue without the overlay
+  ansible.builtin.fail:
+    msg: >-
+      Overlay {{ radxa_i2c3_overlay }} not found in
+      {{ radxa_i2c3_overlay_dir }}. Install or reinstall the board dtb
+      package (linux-dtb-vendor-rk35xx) and re-run.
+  when:
+    - radxa_i2c3_supported | default(false)
+    - not radxa_i2c3_dtbo.stat.exists
+
+- name: Read current overlays
+  ansible.builtin.command:
+    cmd: "grep '^overlays=' {{ radxa_i2c3_env_file }}"
+  register: radxa_i2c3_current
+  changed_when: false
+  failed_when: false
+  when: radxa_i2c3_supported | default(false)
+
+- name: Compute the merged overlays list
+  ansible.builtin.set_fact:
+    radxa_i2c3_merged: "{{ ((radxa_i2c3_current.stdout | default('') | regex_replace('^overlays=', '') | split(',')) + ([radxa_i2c3_overlay] | difference(radxa_i2c3_current.stdout | default('') | regex_replace('^overlays=', '') | split(',')))) | map('trim') | select | join(',') }}"
+  when: radxa_i2c3_supported | default(false)
+
+- name: Enable the i2c3 header overlay
+  ansible.builtin.lineinfile:
+    path: "{{ radxa_i2c3_env_file }}"
+    regexp: "^overlays="
+    line: "overlays={{ radxa_i2c3_merged }}"
+    insertafter: EOF
+    mode: "0644"
+  register: radxa_i2c3_enabled
+  notify: Reboot for i2c3 overlay
+  when: radxa_i2c3_supported | default(false)

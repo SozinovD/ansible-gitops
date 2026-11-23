@@ -1,0 +1,33 @@
+---
+theme: {{ authelia_theme | to_json }}
+server:
+  address: tcp://0.0.0.0:9091
+log:
+  level: {{ authelia_log_level | to_json }}
+totp:
+  issuer: {{ authelia_totp_issuer | to_json }}
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+access_control:
+  default_policy: {{ authelia_default_policy | to_json }}
+{% if authelia_access_rules %}
+  rules:
+{% for rule in authelia_access_rules %}
+    - domain: {{ rule.domain | to_json }}
+      policy: {{ rule.policy | to_json }}
+{% endfor %}
+{% endif %}
+session:
+  name: authelia_session
+  expiration: 1h
+  inactivity: 5m
+  remember_me_duration: 1M
+  domain: {{ authelia_session_domain | to_json }}
+storage:
+  local:
+    path: /data/authelia.sqlite3
+notifier:
+  filesystem:
+    filename: /data/notification.txt
+{{ authelia_extra_config }}

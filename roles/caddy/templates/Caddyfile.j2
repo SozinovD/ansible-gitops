@@ -1,0 +1,48 @@
+{% if caddy_email %}
+{
+	email {{ caddy_email }}
+}
+
+{% endif %}
+{% set auth_sites = caddy_sites | selectattr('auth', 'defined') | selectattr('auth', 'sameas', true) | list %}
+{% if auth_sites %}
+(authz) {
+	forward_auth {{ caddy_authelia_addr }} {
+		uri /api/verify?rd=%2Fapi%2Fauth%2Fredirect%2F
+	}
+}
+
+{% endif %}
+{% for site in caddy_sites %}
+{{ site.host }} {
+{% if site.tls is defined %}
+	tls {{ site.tls }}
+{% endif %}
+{% if site.auth is defined and site.auth is sameas true %}
+	import authz
+	reverse_proxy {{ site.to }}
+{% elif site.auth is defined and site.auth == 'google' %}
+	handle /oauth2/* {
+		reverse_proxy {{ caddy_oauth2_proxy_addr }} {
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-Uri {uri}
+		}
+	}
+	handle {
+		forward_auth {{ caddy_oauth2_proxy_addr }} {
+			uri /oauth2/auth
+			header_up X-Real-IP {remote_host}
+			@unauth status 401
+			handle_response @unauth {
+				redir * /oauth2/sign_in?rd={uri}
+			}
+		}
+		reverse_proxy {{ site.to }}
+	}
+{% else %}
+	reverse_proxy {{ site.to }}
+{% endif %}
+}
+
+{% endfor %}
+{{ caddy_extra_config }}

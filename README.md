@@ -130,6 +130,10 @@ assigned to the commit, so artifact and tag always match. Push a manual tag
 | [`ansible_pull`](roles/ansible_pull/) | ansible + systemd timer for self-updates |
 | [`common`](roles/common/) | base packages, shell aliases and editor |
 | [`docker`](roles/docker/) | Docker Engine + compose plugin |
+| [`authelia`](roles/authelia/) | Authelia SSO portal and forward-auth in docker |
+| [`caddy`](roles/caddy/) | Caddy reverse proxy in docker |
+| [`netbird`](roles/netbird/) | NetBird client (mesh VPN peer) in docker |
+| [`oauth2_proxy`](roles/oauth2_proxy/) | oauth2-proxy in docker, Google SSO for caddy sites |
 | [`portainer`](roles/portainer/) | Portainer CE for the local docker |
 | [`portainer_telegram`](roles/portainer_telegram/) | portainer-telegram as a Portainer stack |
 | [`hermes_agent`](roles/hermes_agent/) | hermes agent in docker |
@@ -150,6 +154,10 @@ host_vars/<hostname>.yml        per-device variables and list of roles
 roles/ansible_pull/             installs ansible, service, and the update timer
 roles/common/                   base packages, shell aliases and editor
 roles/docker/                   Docker Engine + compose plugin
+roles/authelia/                 Authelia SSO portal in docker
+roles/caddy/                    Caddy reverse proxy in docker
+roles/netbird/                  NetBird client (mesh VPN peer) in docker
+roles/oauth2_proxy/             oauth2-proxy, Google SSO for caddy sites
 roles/portainer/                Portainer CE (docker backend)
 roles/portainer_telegram/       portainer-telegram as a Portainer stack
 roles/hermes_agent/             hermes agent in docker

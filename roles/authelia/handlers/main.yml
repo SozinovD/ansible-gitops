@@ -1,0 +1,5 @@
+---
+- name: Restart authelia
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ authelia_compose_dir }} restart
+  changed_when: true

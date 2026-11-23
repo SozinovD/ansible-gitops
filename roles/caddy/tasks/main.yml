@@ -1,0 +1,25 @@
+---
+- name: Create compose directory
+  ansible.builtin.file:
+    path: "{{ caddy_compose_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Deploy Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: "{{ caddy_compose_dir }}/Caddyfile"
+    mode: "0644"
+  notify: Restart caddy
+
+- name: Deploy caddy compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ caddy_compose_dir }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy caddy
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ caddy_compose_dir }} up --detach --pull always --remove-orphans
+  register: caddy_up
+  changed_when: (caddy_up.stdout ~ caddy_up.stderr) is search('Created|Recreated|Started')

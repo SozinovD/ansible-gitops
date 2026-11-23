@@ -1,0 +1,5 @@
+---
+- name: Restart oauth2-proxy
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ oauth2_proxy_compose_dir }} restart
+  changed_when: true

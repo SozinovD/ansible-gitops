@@ -7,6 +7,10 @@ sbc_extra_roles:
   - hermes_agent
   # - pisugar
   # - wifi_hotspot
+  # - caddy
+  # - authelia
+  # - netbird
+  # - oauth2_proxy
 
 # common_packages:
 #   - vim
@@ -22,6 +26,27 @@ sbc_extra_roles:
 # wifi_hotspot_interface: mlan0
 # wifi_hotspot_ap_ssid: SBC-Hotspot
 # wifi_hotspot_ap_passphrase: change-me
+
+# authelia_session_domain: example.com
+# authelia_access_rules:
+#   - domain:
+#       - portainer.example.com
+#     policy: one_factor
+
+# caddy_sites:
+#   - host: portainer.example.com
+#     to: host.docker.internal:9443
+#     auth: true
+#   - host: app.example.com
+#     to: host.docker.internal:8080
+#     auth: google
+
+# oauth2_proxy_allowed_emails:     # accounts allowed to log in with Google
+#   - me@gmail.com
+# oauth2_proxy_cookie_domains: [.example.com]        # one login for all sites
+# oauth2_proxy_whitelist_domains: [.example.com]
+
+# netbird_management_url: https://netbird.example.com   # self-hosted; empty = cloud
 
 hermes_agent_env:
   HERMES_LOG_LEVEL: info

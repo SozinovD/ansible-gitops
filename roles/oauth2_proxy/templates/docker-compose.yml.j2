@@ -1,0 +1,40 @@
+services:
+  oauth2-proxy:
+    image: {{ oauth2_proxy_image }}
+    container_name: {{ oauth2_proxy_container_name }}
+    restart: {{ oauth2_proxy_restart_policy }}
+{% if oauth2_proxy_ports %}
+    ports:
+{% for p in oauth2_proxy_ports %}
+      - "{{ p }}"
+{% endfor %}
+{% endif %}
+    environment:
+      OAUTH2_PROXY_PROVIDER: {{ oauth2_proxy_provider | to_json }}
+      OAUTH2_PROXY_CLIENT_ID: {{ oauth2_proxy_client_id | to_json }}
+      OAUTH2_PROXY_CLIENT_SECRET: {{ oauth2_proxy_client_secret | to_json }}
+      OAUTH2_PROXY_COOKIE_SECRET: {{ oauth2_proxy_cookie_secret | to_json }}
+      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
+      OAUTH2_PROXY_REVERSE_PROXY: "true"
+      OAUTH2_PROXY_COOKIE_SECURE: "true"
+      OAUTH2_PROXY_COOKIE_SAMESITE: "lax"
+      OAUTH2_PROXY_COOKIE_HTTPONLY: "true"
+      OAUTH2_PROXY_SCOPE: {{ oauth2_proxy_scope | to_json }}
+      OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
+      OAUTH2_PROXY_PASS_USER_HEADERS: "true"
+{% if oauth2_proxy_email_domains %}
+      OAUTH2_PROXY_EMAIL_DOMAINS: {{ oauth2_proxy_email_domains | join(',') | to_json }}
+{% endif %}
+{% if oauth2_proxy_cookie_domains %}
+      OAUTH2_PROXY_COOKIE_DOMAINS: {{ oauth2_proxy_cookie_domains | join(',') | to_json }}
+{% endif %}
+{% if oauth2_proxy_whitelist_domains %}
+      OAUTH2_PROXY_WHITELIST_DOMAINS: {{ oauth2_proxy_whitelist_domains | join(',') | to_json }}
+{% endif %}
+{% for key, value in oauth2_proxy_extra_env.items() %}
+      {{ key }}: {{ value | to_json }}
+{% endfor %}
+{% if oauth2_proxy_allowed_emails %}
+    volumes:
+      - {{ oauth2_proxy_config_dir }}/authenticated-emails:/etc/oauth2-proxy/authenticated-emails:ro
+{% endif %}

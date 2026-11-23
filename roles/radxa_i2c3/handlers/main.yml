@@ -1,0 +1,5 @@
+---
+- name: Reboot for i2c3 overlay
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+  when: radxa_i2c3_reboot

@@ -1,0 +1,14 @@
+---
+caddy_image: caddy:2
+caddy_compose_dir: /opt/caddy
+caddy_container_name: caddy
+caddy_restart_policy: unless-stopped
+caddy_email: ""
+caddy_ports:
+  - "80:80"
+  - "443:443"
+  - "443:443/udp"
+caddy_authelia_addr: host.docker.internal:9091
+caddy_oauth2_proxy_addr: host.docker.internal:4180
+caddy_sites: []
+caddy_extra_config: ""

@@ -1,0 +1,8 @@
+---
+netbird_image: netbirdio/netbird:latest
+netbird_compose_dir: /opt/netbird
+netbird_container_name: netbird
+netbird_restart_policy: unless-stopped
+netbird_hostname: "{{ inventory_hostname }}"
+netbird_management_url: ""
+netbird_extra_env: {}

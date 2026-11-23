@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: SozinovD
+  description: NetBird client (mesh VPN peer) in docker
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - noble
+
+dependencies:
+  - docker

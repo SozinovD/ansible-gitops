@@ -1,0 +1,17 @@
+---
+users:
+{% if authelia_users %}
+{% for name, user in authelia_users.items() %}
+  {{ name }}:
+    password: {{ user.password | to_json }}
+    displayname: {{ user.displayname | to_json }}
+{% if user.email is defined %}
+    email: {{ user.email | to_json }}
+{% endif %}
+{% if user.groups is defined %}
+    groups: {{ user.groups | to_json }}
+{% endif %}
+{% endfor %}
+{% else %}
+  {}
+{% endif %}

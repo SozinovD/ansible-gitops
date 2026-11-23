@@ -1,0 +1,17 @@
+---
+authelia_image: authelia/authelia:latest
+authelia_compose_dir: /opt/authelia
+authelia_container_name: authelia
+authelia_restart_policy: unless-stopped
+authelia_ports:
+  - "9091:9091"
+authelia_config_dir: /etc/authelia
+authelia_data_dir: /var/lib/authelia
+authelia_session_domain: ""
+authelia_default_policy: deny
+authelia_access_rules: []
+authelia_theme: auto
+authelia_totp_issuer: Authelia
+authelia_log_level: info
+authelia_users: {}
+authelia_extra_config: ""

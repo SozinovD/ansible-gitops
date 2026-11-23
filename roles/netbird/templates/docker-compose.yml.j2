@@ -1,0 +1,26 @@
+services:
+  netbird:
+    image: {{ netbird_image }}
+    container_name: {{ netbird_container_name }}
+    hostname: {{ netbird_hostname | to_json }}
+    restart: {{ netbird_restart_policy }}
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      NB_SETUP_KEY: {{ netbird_setup_key | to_json }}
+{% if netbird_management_url %}
+      NB_MANAGEMENT_URL: {{ netbird_management_url | to_json }}
+{% endif %}
+{% for key, value in netbird_extra_env.items() %}
+      {{ key }}: {{ value | to_json }}
+{% endfor %}
+    volumes:
+      - netbird_client:/var/lib/netbird
+
+volumes:
+  netbird_client: {}

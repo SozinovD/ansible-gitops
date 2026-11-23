@@ -1,0 +1,42 @@
+---
+- name: Check that provider credentials are set
+  ansible.builtin.fail:
+    msg: oauth2_proxy_client_id, oauth2_proxy_client_secret and oauth2_proxy_cookie_secret must be set in /etc/ansible-gitops/secrets.yml
+  when: oauth2_proxy_client_id is not defined or oauth2_proxy_client_secret is not defined or oauth2_proxy_cookie_secret is not defined
+
+- name: Check that allowed accounts are restricted
+  ansible.builtin.fail:
+    msg: set oauth2_proxy_allowed_emails or oauth2_proxy_email_domains, otherwise any provider account could log in
+  when: not oauth2_proxy_allowed_emails | default([]) and not oauth2_proxy_email_domains | default([])
+
+- name: Create config directory
+  ansible.builtin.file:
+    path: "{{ oauth2_proxy_config_dir }}"
+    state: directory
+    mode: "0700"
+
+- name: Deploy authenticated emails file
+  ansible.builtin.template:
+    src: authenticated-emails.j2
+    dest: "{{ oauth2_proxy_config_dir }}/authenticated-emails"
+    mode: "0600"
+  when: oauth2_proxy_allowed_emails
+  notify: Restart oauth2-proxy
+
+- name: Create compose directory
+  ansible.builtin.file:
+    path: "{{ oauth2_proxy_compose_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Deploy oauth2-proxy compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ oauth2_proxy_compose_dir }}/docker-compose.yml"
+    mode: "0640"
+
+- name: Deploy oauth2-proxy
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ oauth2_proxy_compose_dir }} up --detach --pull always --remove-orphans
+  register: oauth2_proxy_up
+  changed_when: (oauth2_proxy_up.stdout ~ oauth2_proxy_up.stderr) is search('Created|Recreated|Started')

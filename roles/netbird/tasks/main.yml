@@ -1,0 +1,52 @@
+---
+- name: Check that a setup key is provided
+  ansible.builtin.fail:
+    msg: netbird_setup_key is not defined; put it in /etc/ansible-gitops/secrets.yml
+  when: netbird_setup_key is not defined
+
+- name: Check for tun device
+  ansible.builtin.stat:
+    path: /dev/net/tun
+  register: netbird_tun_device
+
+- name: Load tun kernel module
+  ansible.builtin.command:
+    cmd: modprobe tun
+  changed_when: true
+  when: not netbird_tun_device.stat.exists
+
+- name: Persist tun module across reboots
+  ansible.builtin.copy:
+    content: "tun\n"
+    dest: /etc/modules-load.d/netbird-tun.conf
+    mode: "0644"
+  when: not netbird_tun_device.stat.exists
+
+- name: Re-check tun device
+  ansible.builtin.stat:
+    path: /dev/net/tun
+  register: netbird_tun_device_after
+  when: not netbird_tun_device.stat.exists
+
+- name: Fail if tun device is unavailable
+  ansible.builtin.fail:
+    msg: /dev/net/tun not found and modprobe tun did not help; enable the tun kernel module on the host
+  when: not netbird_tun_device.stat.exists and not (netbird_tun_device_after.stat.exists | default(false))
+
+- name: Create compose directory
+  ansible.builtin.file:
+    path: "{{ netbird_compose_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Deploy netbird compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ netbird_compose_dir }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy netbird
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ netbird_compose_dir }} up --detach --pull always --remove-orphans
+  register: netbird_up
+  changed_when: (netbird_up.stdout ~ netbird_up.stderr) is search('Created|Recreated|Started')

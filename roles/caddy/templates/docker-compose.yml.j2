@@ -1,0 +1,21 @@
+services:
+  caddy:
+    image: {{ caddy_image }}
+    container_name: {{ caddy_container_name }}
+    restart: {{ caddy_restart_policy }}
+{% if caddy_ports %}
+    ports:
+{% for p in caddy_ports %}
+      - "{{ p }}"
+{% endfor %}
+{% endif %}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - {{ caddy_compose_dir }}/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}

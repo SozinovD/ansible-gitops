@@ -31,6 +31,12 @@ Communication with the user: concise, in Russian.
      --detach --pull always --remove-orphans` with
      `changed_when: (stdout ~ stderr) is search('Created|Recreated|Started')`;
   4. `meta/main.yml`: `dependencies` on `docker` where applicable.
+  5. `tasks/remove.yml`: `stat` the compose file, then
+     `docker compose --project-directory <dir> down --remove-orphans`
+     (`changed_when: (stdout ~ stderr) is search('Removed|Stopping|Stopped')`)
+     and `file: state: absent` for the compose dir; keep data volumes and
+     data directories. Roles deployed via Portainer API (see
+     `roles/portainer_telegram`) remove their stack instead.
 - Secrets never live in this repo. Device-local secrets go to
   `/etc/ansible-gitops/secrets.yml` (root-only 600), which `local.yml` loads via
   `include_vars` before applying roles — roles read them as ordinary vars.
@@ -39,7 +45,13 @@ Communication with the user: concise, in Russian.
   merged into `extra_roles` by a `set_fact` in `local.yml` pre_tasks:
   appended after the `host_vars` list, duplicates skipped, order preserved
   (`+` and `| difference(...)`, not `| union(...)` — union shuffles order,
-  and role application order matters).
+  and role application order matters). The same file's `remove_roles` list is
+  merged the same way (host_vars override allowed). For every role in
+  `remove_roles` `local.yml` runs `roles/<name>/tasks/remove.yml` via
+  `include_role` (roles without that file are skipped with a warning) and
+  excludes them from the apply loop — removal wins when a role is in both
+  lists. New roles should ship `tasks/remove.yml` when they create
+  host-side artifacts; see the compose-deploy pattern above.
 
 ## Adding a role: checklist
 

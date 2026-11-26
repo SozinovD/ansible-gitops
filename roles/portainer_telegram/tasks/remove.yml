@@ -1,0 +1,53 @@
+---
+- name: Wait for Portainer API
+  ansible.builtin.wait_for:
+    host: localhost
+    port: "{{ portainer_telegram_api_url | urlsplit('port') | default(443, true) }}"
+    timeout: 60
+  register: portainer_telegram_api_wait
+  failed_when: false
+
+- name: Remove portainer-telegram stack from Portainer
+  when: portainer_telegram_api_wait.state | default('') == 'passed'
+  block:
+    - name: List Portainer endpoints
+      ansible.builtin.uri:
+        url: "{{ portainer_telegram_api_url }}/api/endpoints"
+        method: GET
+        headers:
+          X-API-Key: "{{ portainer_telegram_api_key }}"
+        validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+        status_code: [200]
+      register: portainer_telegram_endpoints
+      changed_when: false
+
+    - name: Resolve Portainer endpoint id
+      ansible.builtin.set_fact:
+        portainer_telegram_endpoint_id: "{{ (portainer_telegram_portainer_endpoint_id if portainer_telegram_portainer_endpoint_id | string | length > 0 else (portainer_telegram_endpoints.json | selectattr('Status', '==', 1) | map(attribute='Id') | first | default('', true))) | string }}"
+
+    - name: List Portainer stacks
+      ansible.builtin.uri:
+        url: "{{ portainer_telegram_api_url }}/api/stacks"
+        method: GET
+        headers:
+          X-API-Key: "{{ portainer_telegram_api_key }}"
+        validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+        status_code: [200]
+      register: portainer_telegram_stacks
+      changed_when: false
+
+    - name: Resolve portainer-telegram stack id
+      ansible.builtin.set_fact:
+        portainer_telegram_stack_id: "{{ (portainer_telegram_stacks.json | selectattr('Name', '==', portainer_telegram_stack_name) | map(attribute='Id') | list | first | default('', true)) | string }}"
+
+    - name: Delete portainer-telegram stack
+      ansible.builtin.uri:
+        url: "{{ portainer_telegram_api_url }}/api/stacks/{{ portainer_telegram_stack_id }}?endpointId={{ portainer_telegram_endpoint_id }}"
+        method: DELETE
+        headers:
+          X-API-Key: "{{ portainer_telegram_api_key }}"
+        validate_certs: "{{ portainer_telegram_api_validate_certs }}"
+        status_code: [204, 404]
+      register: portainer_telegram_delete
+      changed_when: portainer_telegram_delete.status == 204
+      when: portainer_telegram_stack_id | string | length > 0

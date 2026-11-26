@@ -1,0 +1,17 @@
+---
+- name: Check hermes agent compose file
+  ansible.builtin.stat:
+    path: "{{ hermes_agent_compose_dir }}/docker-compose.yml"
+  register: hermes_agent_compose_file
+
+- name: Stop and remove hermes agent containers
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ hermes_agent_compose_dir }} down --remove-orphans
+  register: hermes_agent_down
+  changed_when: (hermes_agent_down.stdout ~ hermes_agent_down.stderr) is search('Removed|Stopping|Stopped')
+  when: hermes_agent_compose_file.stat.exists
+
+- name: Remove hermes agent compose directory
+  ansible.builtin.file:
+    path: "{{ hermes_agent_compose_dir }}"
+    state: absent

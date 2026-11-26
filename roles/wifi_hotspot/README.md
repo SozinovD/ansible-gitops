@@ -43,3 +43,11 @@ wifi_hotspot_env:                # any other service variables
 ## Dependencies
 
 - `docker`
+
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). Containers are stopped, `wifi_hotspot_compose_dir` is
+removed and the interface is returned to NetworkManager (the
+unmanaged-devices conf is deleted and NetworkManager restarted);
+`wifi_hotspot_data_dir` is kept.

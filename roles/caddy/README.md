@@ -63,3 +63,10 @@ via `caddy_authelia_addr`. Likewise `auth: google` requires the
 ## Dependencies
 
 - `docker`
+
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). Containers are stopped and `caddy_compose_dir`
+(including the rendered Caddyfile) is removed; the `caddy_data` and
+`caddy_config` volumes are kept and can be deleted manually.

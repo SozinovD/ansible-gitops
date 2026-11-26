@@ -1,0 +1,32 @@
+---
+- name: Check for NetworkManager
+  ansible.builtin.stat:
+    path: /etc/NetworkManager/conf.d
+  register: wifi_hotspot_nm_conf_dir
+
+- name: Return wifi interface to NetworkManager
+  ansible.builtin.file:
+    path: /etc/NetworkManager/conf.d/10-sbc-wifi-hotspot.conf
+    state: absent
+  when: wifi_hotspot_nm_conf_dir.stat.exists and wifi_hotspot_nm_conf_dir.stat.isdir
+  notify: Restart NetworkManager
+
+- name: Apply NetworkManager changes
+  ansible.builtin.meta: flush_handlers
+
+- name: Check sbc-wifi-hotspot compose file
+  ansible.builtin.stat:
+    path: "{{ wifi_hotspot_compose_dir }}/docker-compose.yml"
+  register: wifi_hotspot_compose_file
+
+- name: Stop and remove sbc-wifi-hotspot containers
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ wifi_hotspot_compose_dir }} down --remove-orphans
+  register: wifi_hotspot_down
+  changed_when: (wifi_hotspot_down.stdout ~ wifi_hotspot_down.stderr) is search('Removed|Stopping|Stopped')
+  when: wifi_hotspot_compose_file.stat.exists
+
+- name: Remove sbc-wifi-hotspot compose directory
+  ansible.builtin.file:
+    path: "{{ wifi_hotspot_compose_dir }}"
+    state: absent

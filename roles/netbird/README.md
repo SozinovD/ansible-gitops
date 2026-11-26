@@ -43,3 +43,10 @@ NetBird dashboard and put it in `/etc/ansible-gitops/secrets.yml`
 ## Dependencies
 
 - `docker`
+
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). Containers are stopped, `netbird_compose_dir` and
+`/etc/modules-load.d/netbird-tun.conf` are removed; the `netbird_client`
+volume with the peer state is kept.

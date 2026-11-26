@@ -1,0 +1,17 @@
+---
+- name: Check portainer compose file
+  ansible.builtin.stat:
+    path: "{{ portainer_compose_dir }}/docker-compose.yml"
+  register: portainer_compose_file
+
+- name: Stop and remove portainer containers
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ portainer_compose_dir }} down --remove-orphans
+  register: portainer_down
+  changed_when: (portainer_down.stdout ~ portainer_down.stderr) is search('Removed|Stopping|Stopped')
+  when: portainer_compose_file.stat.exists
+
+- name: Remove portainer compose directory
+  ansible.builtin.file:
+    path: "{{ portainer_compose_dir }}"
+    state: absent

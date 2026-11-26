@@ -1,0 +1,17 @@
+---
+- name: Check caddy compose file
+  ansible.builtin.stat:
+    path: "{{ caddy_compose_dir }}/docker-compose.yml"
+  register: caddy_compose_file
+
+- name: Stop and remove caddy containers
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ caddy_compose_dir }} down --remove-orphans
+  register: caddy_down
+  changed_when: (caddy_down.stdout ~ caddy_down.stderr) is search('Removed|Stopping|Stopped')
+  when: caddy_compose_file.stat.exists
+
+- name: Remove caddy compose directory
+  ansible.builtin.file:
+    path: "{{ caddy_compose_dir }}"
+    state: absent

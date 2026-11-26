@@ -55,6 +55,23 @@
     - portainer_admin_check.status != 204
     - portainer_admin_password is defined
 
+- name: Extract Portainer setup token
+  ansible.builtin.set_fact:
+    portainer_setup_token: "{{ (portainer_logs.stderr ~ portainer_logs.stdout) | regex_findall('setup_token=[0-9a-f]+') | last | default('') | regex_replace('setup_token=', '') }}"
+  no_log: true
+  when:
+    - portainer_admin_check.status != 204
+    - portainer_admin_password is defined
+
+- name: Require Portainer setup token
+  ansible.builtin.assert:
+    that: portainer_setup_token | default('') | length > 0
+    quiet: true
+    msg: Portainer setup token not found in container logs
+  when:
+    - portainer_admin_check.status != 204
+    - portainer_admin_password is defined
+
 - name: Create initial admin user
   ansible.builtin.uri:
     url: "{{ portainer_api_url }}/api/users/admin/init"
@@ -64,7 +81,7 @@
       username: "{{ portainer_admin_user }}"
       password: "{{ portainer_admin_password }}"
     headers:
-      X-Setup-Token: "{{ portainer_logs.stdout | regex_search('setup_token=[0-9a-f]+') | default('') | regex_replace('setup_token=', '') }}"
+      X-Setup-Token: "{{ portainer_setup_token | default('') }}"
     status_code: [200, 409]
     validate_certs: false
   no_log: true

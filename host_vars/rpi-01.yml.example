@@ -1,7 +1,7 @@
 ---
 ansible_pull_interval: 15min
 
-sbc_extra_roles:
+extra_roles:
   - common
   - portainer
   - hermes_agent

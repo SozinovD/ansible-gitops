@@ -43,7 +43,7 @@ There is no raspi-config: enable the board's I2C overlay for the 40-pin header
 yourself (uconfig on Radxa images, `overlays=` in `/boot/armbianEnv.txt` on
 Armbian), reboot, and the role proceeds. On Radxa Zero 3W/3E with Armbian the
 [`radxa_i2c3`](../radxa_i2c3/) role does this for header pins 3/5 — add it to
-`sbc_extra_roles` before `pisugar`. If the header bus is not bus 1, point
+`extra_roles` before `pisugar`. If the header bus is not bus 1, point
 pisugar-server at the right device in `/etc/default/pisugar-server`.
 
 ## Variables

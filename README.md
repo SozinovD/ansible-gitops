@@ -42,7 +42,7 @@ the systemd timer.
   `local.yml` against itself (inventory: `<hostname>,`).
 - Device-specific settings and roles: `host_vars/<hostname>.yml`
   (see `host_vars/rpi-01.yml.example`), add roles for the device to
-  `sbc_extra_roles`. A device can also add roles locally without touching the
+  `extra_roles`. A device can also add roles locally without touching the
   repo — see [Local roles](#local-roles).
 - Role defaults (repo, branch, interval): `roles/ansible_pull/defaults/main.yml`,
   can be overridden in `host_vars/<hostname>.yml`.
@@ -80,11 +80,11 @@ A sample with all variables the roles read from it:
 A device can extend its role list locally, without a commit to this repo:
 list extra roles in `/etc/ansible-gitops/roles.yml` (root-only, `chmod 600`).
 `local.yml` loads it before applying roles and appends them to
-`sbc_extra_roles` from `host_vars` (after the repo list, duplicates skipped):
+`extra_roles` from `host_vars` (after the repo list, duplicates skipped):
 
 ```yaml
 # /etc/ansible-gitops/roles.yml
-sbc_extra_roles:
+extra_roles:
   - wifi_hotspot
 ```
 

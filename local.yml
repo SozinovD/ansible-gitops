@@ -20,9 +20,9 @@
         file: /etc/ansible-gitops/roles.yml
         name: sbc_local_roles
       when: sbc_local_roles_file.stat.exists
-    - name: Merge local roles into sbc_extra_roles
+    - name: Merge local roles into extra_roles
       ansible.builtin.set_fact:
-        sbc_extra_roles: "{{ sbc_extra_roles | default([]) + (sbc_local_roles.sbc_extra_roles | default([]) | difference(sbc_extra_roles | default([]))) }}"
+        extra_roles: "{{ extra_roles | default([]) + (sbc_local_roles.extra_roles | default([]) | difference(extra_roles | default([]))) }}"
       when: sbc_local_roles_file.stat.exists
   roles:
     - role: ansible_pull
@@ -30,4 +30,4 @@
     - name: Apply device-specific roles
       ansible.builtin.include_role:
         name: "{{ item }}"
-      loop: "{{ sbc_extra_roles | default([]) }}"
+      loop: "{{ extra_roles | default([]) }}"

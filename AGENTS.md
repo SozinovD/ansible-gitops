@@ -36,7 +36,7 @@ Communication with the user: concise, in Russian.
   `include_vars` before applying roles — roles read them as ordinary vars.
   Keep `examples/secrets.yml.example` in sync when a role adds a secret var.
 - Local role list (`/etc/ansible-gitops/roles.yml`, optional on the device) is
-  merged into `sbc_extra_roles` by a `set_fact` in `local.yml` pre_tasks:
+  merged into `extra_roles` by a `set_fact` in `local.yml` pre_tasks:
   appended after the `host_vars` list, duplicates skipped, order preserved
   (`+` and `| difference(...)`, not `| union(...)` — union shuffles order,
   and role application order matters).

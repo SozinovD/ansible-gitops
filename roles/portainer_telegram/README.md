@@ -32,3 +32,9 @@ Non-secret settings live in `host_vars/<hostname>.yml`:
 ## Dependencies
 
 - `portainer`
+
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). The stack is deleted from Portainer via its API; if
+Portainer is unreachable, the removal is skipped without failing the run.

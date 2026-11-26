@@ -31,6 +31,13 @@ hermes_agent_env:
 | `hermes_agent_volumes` | `[]` | bind mounts |
 | `hermes_agent_env` | `{}` | environment variables |
 
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). Containers are stopped and `hermes_agent_compose_dir`
+is removed; bind-mounted data (e.g. `/opt/hermes-agent/data`) is kept and can
+be deleted manually.
+
 ## Dependencies
 
 - `docker`

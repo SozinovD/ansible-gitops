@@ -76,3 +76,9 @@ compose file contains the provider secret, so it is deployed with mode 0640.
 ## Dependencies
 
 - `docker`
+
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). Containers are stopped and `oauth2_proxy_compose_dir`
+is removed; `/etc/oauth2-proxy` is kept and can be deleted manually.

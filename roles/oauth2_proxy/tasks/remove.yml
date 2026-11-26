@@ -1,0 +1,17 @@
+---
+- name: Check oauth2-proxy compose file
+  ansible.builtin.stat:
+    path: "{{ oauth2_proxy_compose_dir }}/docker-compose.yml"
+  register: oauth2_proxy_compose_file
+
+- name: Stop and remove oauth2-proxy containers
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ oauth2_proxy_compose_dir }} down --remove-orphans
+  register: oauth2_proxy_down
+  changed_when: (oauth2_proxy_down.stdout ~ oauth2_proxy_down.stderr) is search('Removed|Stopping|Stopped')
+  when: oauth2_proxy_compose_file.stat.exists
+
+- name: Remove oauth2-proxy compose directory
+  ansible.builtin.file:
+    path: "{{ oauth2_proxy_compose_dir }}"
+    state: absent

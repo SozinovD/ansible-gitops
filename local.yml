@@ -24,10 +24,35 @@
       ansible.builtin.set_fact:
         extra_roles: "{{ extra_roles | default([]) + (sbc_local_roles.extra_roles | default([]) | difference(extra_roles | default([]))) }}"
       when: sbc_local_roles_file.stat.exists
+    - name: Merge local remove_roles
+      ansible.builtin.set_fact:
+        remove_roles: "{{ (remove_roles | default([])) + (sbc_local_roles.remove_roles | default([]) | difference(remove_roles | default([]))) }}"
+      when: sbc_local_roles_file.stat.exists
   roles:
     - role: ansible_pull
   tasks:
+    - name: Find removal task files for roles to remove
+      ansible.builtin.stat:
+        path: "{{ playbook_dir }}/roles/{{ item }}/tasks/remove.yml"
+      loop: "{{ remove_roles | default([]) }}"
+      register: remove_role_files
+    - name: Remove device-local roles
+      ansible.builtin.include_role:
+        name: "{{ item.item }}"
+        tasks_from: remove.yml
+      loop: "{{ remove_role_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when: item.stat.exists
+    - name: Warn about roles without removal tasks
+      ansible.builtin.debug:
+        msg: "Role {{ item.item }} has no tasks/remove.yml, its artifacts stay on the device"
+      loop: "{{ remove_role_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when: not item.stat.exists
     - name: Apply device-specific roles
       ansible.builtin.include_role:
         name: "{{ item }}"
       loop: "{{ extra_roles | default([]) }}"
+      when: item not in (remove_roles | default([]))

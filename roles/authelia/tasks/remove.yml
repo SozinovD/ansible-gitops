@@ -1,0 +1,17 @@
+---
+- name: Check authelia compose file
+  ansible.builtin.stat:
+    path: "{{ authelia_compose_dir }}/docker-compose.yml"
+  register: authelia_compose_file
+
+- name: Stop and remove authelia containers
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ authelia_compose_dir }} down --remove-orphans
+  register: authelia_down
+  changed_when: (authelia_down.stdout ~ authelia_down.stderr) is search('Removed|Stopping|Stopped')
+  when: authelia_compose_file.stat.exists
+
+- name: Remove authelia compose directory
+  ansible.builtin.file:
+    path: "{{ authelia_compose_dir }}"
+    state: absent

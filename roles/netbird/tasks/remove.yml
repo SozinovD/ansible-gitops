@@ -1,0 +1,22 @@
+---
+- name: Check netbird compose file
+  ansible.builtin.stat:
+    path: "{{ netbird_compose_dir }}/docker-compose.yml"
+  register: netbird_compose_file
+
+- name: Stop and remove netbird containers
+  ansible.builtin.command:
+    cmd: docker compose --project-directory {{ netbird_compose_dir }} down --remove-orphans
+  register: netbird_down
+  changed_when: (netbird_down.stdout ~ netbird_down.stderr) is search('Removed|Stopping|Stopped')
+  when: netbird_compose_file.stat.exists
+
+- name: Stop loading tun module on boot
+  ansible.builtin.file:
+    path: /etc/modules-load.d/netbird-tun.conf
+    state: absent
+
+- name: Remove netbird compose directory
+  ansible.builtin.file:
+    path: "{{ netbird_compose_dir }}"
+    state: absent

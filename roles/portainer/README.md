@@ -36,3 +36,10 @@ project.
 ## Dependencies
 
 - `docker`
+
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). Containers are stopped and `portainer_compose_dir` is
+removed; the `portainer_data` volume is kept and can be deleted manually with
+`docker volume rm portainer_portainer_data`.

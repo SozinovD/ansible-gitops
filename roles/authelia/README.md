@@ -84,3 +84,10 @@ in the database.
 ## Dependencies
 
 - `docker`
+
+## Removal
+
+List the role in `remove_roles` in `/etc/ansible-gitops/roles.yml` (see root
+README "Local roles"). Containers are stopped and `authelia_compose_dir` is
+removed; `/etc/authelia` (config and secrets) and `/var/lib/authelia` (data)
+are kept and can be deleted manually.

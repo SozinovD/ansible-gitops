@@ -88,6 +88,20 @@ extra_roles:
   - wifi_hotspot
 ```
 
+The same file can also remove previously applied roles: list them under
+`remove_roles` and `local.yml` runs the role's `tasks/remove.yml` — compose
+roles stop their containers and delete the compose directory; data volumes
+and data directories are kept and can be cleaned up manually. A role listed
+in `remove_roles` is also skipped by the apply step, so removal wins if a
+role appears in both lists. Roles without `tasks/remove.yml` only produce a
+warning — their artifacts stay untouched:
+
+```yaml
+# /etc/ansible-gitops/roles.yml
+remove_roles:
+  - portainer
+```
+
 Variables for locally added roles can live in the same file or in
 `/etc/ansible-gitops/secrets.yml`. Both files are outside the repo and survive
 ansible-pull runs untouched. A sample:

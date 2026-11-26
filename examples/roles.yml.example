@@ -6,6 +6,14 @@
 extra_roles:
   - wifi_hotspot
 
+# Roles listed under remove_roles are removed on the next ansible-pull run:
+# local.yml executes the role's tasks/remove.yml (containers stop, the compose
+# directory is deleted; data volumes and data directories are kept) and skips
+# the role if it is also listed in extra_roles. Roles without tasks/remove.yml
+# are only skipped with a warning.
+# remove_roles:
+#   - portainer
+
 # Variables for locally added roles can live here or in secrets.yml:
 # wifi_hotspot_interface: mlan0
 # wifi_hotspot_ap_ssid: SBC-Hotspot

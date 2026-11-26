@@ -17,3 +17,20 @@ common_shell_aliases:
   tmuxx: tmux a || tmux
 common_editor: vim
 common_profile_d_file: /etc/profile.d/90-common.sh
+common_fail2ban_enabled: true
+common_fail2ban_jail_local_file: /etc/fail2ban/jail.local
+common_fail2ban_bantime: 1h
+common_fail2ban_bantime_increment: true
+common_fail2ban_bantime_maxtime: 1w
+common_fail2ban_findtime: 10m
+common_fail2ban_maxretry: 3
+common_fail2ban_ignoreip:
+  - 127.0.0.1/8
+  - ::1
+  - 192.168.0.0/16
+  - 172.16.0.0/12
+  - 10.0.0.0/8
+common_fail2ban_extra_ignoreip: []
+common_fail2ban_jails:
+  sshd:
+    backend: systemd

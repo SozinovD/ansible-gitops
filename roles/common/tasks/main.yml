@@ -16,3 +16,40 @@
     src: profile.sh.j2
     dest: "{{ common_profile_d_file }}"
     mode: "0644"
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when: common_fail2ban_enabled
+
+- name: Deploy fail2ban jail.local
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: "{{ common_fail2ban_jail_local_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  when: common_fail2ban_enabled
+  notify: Restart fail2ban
+
+- name: Validate fail2ban config
+  ansible.builtin.command: fail2ban-client -t
+  changed_when: false
+  when: common_fail2ban_enabled
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started
+  when: common_fail2ban_enabled
+
+- name: Disable and stop fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: false
+    state: stopped
+  when: not common_fail2ban_enabled

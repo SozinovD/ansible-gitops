@@ -128,7 +128,7 @@ assigned to the commit, so artifact and tag always match. Push a manual tag
 | Role | Purpose |
 | --- | --- |
 | [`ansible_pull`](roles/ansible_pull/) | ansible + systemd timer for self-updates |
-| [`common`](roles/common/) | base packages, shell aliases and editor |
+| [`common`](roles/common/) | base packages, shell aliases, editor, fail2ban |
 | [`docker`](roles/docker/) | Docker Engine + compose plugin |
 | [`authelia`](roles/authelia/) | Authelia SSO portal and forward-auth in docker |
 | [`caddy`](roles/caddy/) | Caddy reverse proxy in docker |
@@ -152,7 +152,7 @@ bootstrap.sh                    initial setup
 examples/                       sample /etc/ansible-gitops/secrets.yml and roles.yml
 host_vars/<hostname>.yml        per-device variables and list of roles
 roles/ansible_pull/             installs ansible, service, and the update timer
-roles/common/                   base packages, shell aliases and editor
+roles/common/                   base packages, shell aliases, editor, fail2ban
 roles/docker/                   Docker Engine + compose plugin
 roles/authelia/                 Authelia SSO portal in docker
 roles/caddy/                    Caddy reverse proxy in docker

@@ -18,6 +18,10 @@ extra_roles:
 # common_shell_aliases:
 #   ll: ls -alF
 # common_editor: vim
+# common_fail2ban_jails:
+#   sshd:
+#     backend: systemd
+#     port: 2222
 
 # pisugar_model: "PiSugar 3"
 # pisugar_safe_shutdown_level: 15

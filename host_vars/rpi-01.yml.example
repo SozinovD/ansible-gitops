@@ -22,6 +22,10 @@ sbc_extra_roles:
 # pisugar_model: "PiSugar 3"
 # pisugar_safe_shutdown_level: 15
 # pisugar_safe_shutdown_delay: 60
+# pisugar_tap_shells:
+#   single: "wall battery low check"    # runs as root, single line
+#   double: ""
+#   long: "shutdown -h now"
 
 # wifi_hotspot_interface: mlan0
 # wifi_hotspot_ap_ssid: SBC-Hotspot

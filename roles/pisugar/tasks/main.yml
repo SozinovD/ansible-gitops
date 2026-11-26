@@ -126,6 +126,7 @@
       - -c
       - |
         import socket
+        import sys
         client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         client.settimeout(5)
         client.connect("/tmp/pisugar-server.sock")
@@ -134,7 +135,10 @@
             "set_safe_shutdown_delay {{ pisugar_safe_shutdown_delay }}",
         ):
             client.sendall((command + "\n").encode())
-            print(client.recv(4096).decode(errors="replace").strip())
+            response = client.recv(4096).decode(errors="replace").strip()
+            print(response)
+            if not response.endswith("done"):
+                sys.exit(1)
         client.close()
   register: pisugar_safe_shutdown_apply
   until: pisugar_safe_shutdown_apply.rc == 0
@@ -144,3 +148,41 @@
     - not pisugar_reboot_needed | default(false)
     - (pisugar_server_config.auto_shutdown_level | default(0) | float) != (pisugar_safe_shutdown_level | float)
       or (pisugar_server_config.auto_shutdown_delay | default(0) | float) != (pisugar_safe_shutdown_delay | float)
+
+- name: Apply button tap reactions
+  ansible.builtin.command:
+    argv:
+      - python3
+      - -c
+      - |
+        import socket
+        import sys
+        tap, shell = sys.argv[1], sys.argv[2]
+        commands = ["set_button_enable {} {}".format(tap, 1 if shell else 0)]
+        if shell:
+            commands.append("set_button_shell {} {}".format(tap, shell))
+        else:
+            commands.append("set_button_shell {}".format(tap))
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        client.settimeout(5)
+        client.connect("/tmp/pisugar-server.sock")
+        for command in commands:
+            client.sendall((command + "\n").encode())
+            response = client.recv(4096).decode(errors="replace").strip()
+            print(response)
+            if not response.endswith("done"):
+                sys.exit(1)
+        client.close()
+      - "{{ pisugar_tap.key }}"
+      - "{{ pisugar_tap.value | default('', true) }}"
+  register: pisugar_tap_apply
+  until: pisugar_tap_apply.rc == 0
+  retries: 3
+  delay: 5
+  loop: "{{ pisugar_tap_shells | dict2items | sort(attribute='key') }}"
+  loop_control:
+    loop_var: pisugar_tap
+  when:
+    - not pisugar_reboot_needed | default(false)
+    - (pisugar_server_config[pisugar_tap.key ~ '_tap_enable'] | default(false) | bool) != ((pisugar_tap.value | default('', true)) | length > 0)
+      or (pisugar_server_config[pisugar_tap.key ~ '_tap_shell'] | default('')) != (pisugar_tap.value | default('', true))

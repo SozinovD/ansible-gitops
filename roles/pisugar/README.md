@@ -20,10 +20,16 @@ low-battery safe shutdown.
 - The role verifies `pisugar-server` runs as root — required for the built-in
   mechanism to execute the poweroff command.
 - Settings are applied through the server's UDS API and persisted in
-  `/etc/pisugar-server/config.json`; the role manages only
-  `auto_shutdown_level` / `auto_shutdown_delay`, other web GUI settings are
-  left untouched. A failed battery read is treated as a full battery, so a
-  flaky I2C bus never triggers a shutdown.
+  `/etc/pisugar-server/config.json`; the role manages
+  `auto_shutdown_level` / `auto_shutdown_delay` and the tap reaction keys,
+  other web GUI settings are left untouched. A failed battery read is
+  treated as a full battery, so a flaky I2C bus never triggers a shutdown.
+- Button tap reactions (single / double / long press) are configured via
+  `pisugar_tap_shells`: the built-in `pisugar-server` feature runs the given
+  shell command through `/bin/sh -c` when the hat button is pressed — no
+  custom units or scripts. Commands run as root (the server user); the
+  command line is stored as a single line, embedded quotes are not
+  preserved.
 - Removes the former custom `pisugar-low-battery` timer and check script.
 
 Note: the mechanism checks the battery level only, not the charger state. A
@@ -46,13 +52,18 @@ pisugar-server at the right device in `/etc/default/pisugar-server`.
 pisugar_model: "PiSugar 3"   # or "PiSugar 2 (4-LEDs)", "PiSugar 2 (2-LEDs)", "PiSugar 2 Pro"
 pisugar_safe_shutdown_level: 15
 pisugar_safe_shutdown_delay: 60
+pisugar_tap_shells:
+  single: "wall single tap"
+  double: ""
+  long: "shutdown -h now"
 ```
 
 | Variable | Default | Description |
 | --- | --- | --- |
 | `pisugar_model` | `PiSugar 3` | hat model for package selection |
-| `pisugar_safe_shutdown_level` | `15` | shutdown threshold, %; `0` disables |
-| `pisugar_safe_shutdown_delay` | `60` | seconds below the threshold before poweroff |
+| `pisugar_safe_shutdown_level` | `15` | shutdown threshold, %; `0` disables; server clamps to 30 |
+| `pisugar_safe_shutdown_delay` | `60` | seconds below the threshold before poweroff; server clamps to 120 |
+| `pisugar_tap_shells` | all empty | shell command per `single` / `double` / `long` tap, empty = disabled |
 | `pisugar_auto_reboot` | `true` | reboot once after enabling I2C on Raspberry Pi OS |
 
 ## Dependencies

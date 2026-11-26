@@ -2,4 +2,8 @@
 pisugar_model: "PiSugar 3"
 pisugar_safe_shutdown_level: 15
 pisugar_safe_shutdown_delay: 60
+pisugar_tap_shells:
+  single: ""
+  double: ""
+  long: ""
 pisugar_auto_reboot: true

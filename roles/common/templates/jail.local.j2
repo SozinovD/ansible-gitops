@@ -1,0 +1,19 @@
+[DEFAULT]
+bantime           = {{ common_fail2ban_bantime }}
+bantime.increment = {{ 'true' if common_fail2ban_bantime_increment else 'false' }}
+bantime.maxtime   = {{ common_fail2ban_bantime_maxtime }}
+findtime          = {{ common_fail2ban_findtime }}
+maxretry          = {{ common_fail2ban_maxretry }}
+{%- set ignoreip_all = (common_fail2ban_ignoreip + common_fail2ban_extra_ignoreip) | unique | list %}
+{%- if ignoreip_all %}
+ignoreip          = {{ ignoreip_all | join(' ') }}
+{%- endif %}
+
+{% for name, jail in common_fail2ban_jails | dictsort -%}
+[{{ name }}]
+enabled = {{ 'true' if jail.enabled | default(true) else 'false' }}
+{% for key, value in jail.items() if key != 'enabled' -%}
+{{ key }} = {{ value }}
+{% endfor -%}
+
+{% endfor -%}

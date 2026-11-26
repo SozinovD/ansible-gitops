@@ -20,8 +20,8 @@ sbc_extra_roles:
 # common_editor: vim
 
 # pisugar_model: "PiSugar 3"
-# pisugar_low_battery_level: 15
-# pisugar_check_interval: 1min
+# pisugar_safe_shutdown_level: 15
+# pisugar_safe_shutdown_delay: 60
 
 # wifi_hotspot_interface: mlan0
 # wifi_hotspot_ap_ssid: SBC-Hotspot

@@ -69,26 +69,78 @@
     enabled: true
   when: not pisugar_reboot_needed | default(false)
 
-- name: Deploy low battery check script
-  ansible.builtin.template:
-    src: pisugar-low-battery-check.py.j2
-    dest: /usr/local/bin/pisugar-low-battery-check
-    mode: "0755"
-  notify: Restart pisugar low battery timer
+- name: Read PiSugar server config
+  ansible.builtin.slurp:
+    src: /etc/pisugar-server/config.json
+  register: pisugar_server_config_raw
 
-- name: Deploy low battery check units
-  ansible.builtin.template:
-    src: "{{ item }}.j2"
-    dest: "/etc/systemd/system/{{ item }}"
-    mode: "0644"
-  loop:
-    - pisugar-low-battery.service
-    - pisugar-low-battery.timer
-  notify: Restart pisugar low battery timer
+- name: Parse PiSugar server config
+  ansible.builtin.set_fact:
+    pisugar_server_config: "{{ pisugar_server_config_raw.content | b64decode | from_json }}"
+  changed_when: false
 
-- name: Enable low battery check timer
+- name: Check for custom low battery watchdog
+  ansible.builtin.stat:
+    path: /etc/systemd/system/pisugar-low-battery.timer
+  register: pisugar_old_watchdog
+
+- name: Stop and disable custom low battery watchdog
   ansible.builtin.systemd_service:
     name: pisugar-low-battery.timer
-    state: started
-    enabled: true
+    state: stopped
+    enabled: false
+  when: pisugar_old_watchdog.stat.exists
+
+- name: Remove custom low battery watchdog
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/systemd/system/pisugar-low-battery.service
+    - /etc/systemd/system/pisugar-low-battery.timer
+    - /usr/local/bin/pisugar-low-battery-check
+  notify: Reload systemd manager
+
+- name: Check pisugar-server process owner
+  ansible.builtin.command:
+    cmd: ps -o user= -C pisugar-server
+  register: pisugar_server_user
+  changed_when: false
   when: not pisugar_reboot_needed | default(false)
+
+- name: Require root pisugar-server for safe shutdown
+  ansible.builtin.assert:
+    that:
+      - pisugar_server_user.stdout_lines | default([]) | length > 0
+      - pisugar_server_user.stdout_lines | default([]) | first | trim == 'root'
+    msg: >-
+      pisugar-server must run as root to execute the poweroff command of the
+      built-in safe shutdown mechanism
+    quiet: true
+  when: not pisugar_reboot_needed | default(false)
+
+- name: Apply built-in safe shutdown settings
+  ansible.builtin.command:
+    argv:
+      - python3
+      - -c
+      - |
+        import socket
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        client.settimeout(5)
+        client.connect("/tmp/pisugar-server.sock")
+        for command in (
+            "set_safe_shutdown_level {{ pisugar_safe_shutdown_level }}",
+            "set_safe_shutdown_delay {{ pisugar_safe_shutdown_delay }}",
+        ):
+            client.sendall((command + "\n").encode())
+            print(client.recv(4096).decode(errors="replace").strip())
+        client.close()
+  register: pisugar_safe_shutdown_apply
+  until: pisugar_safe_shutdown_apply.rc == 0
+  retries: 3
+  delay: 5
+  when:
+    - not pisugar_reboot_needed | default(false)
+    - (pisugar_server_config.auto_shutdown_level | default(0) | float) != (pisugar_safe_shutdown_level | float)
+      or (pisugar_server_config.auto_shutdown_delay | default(0) | float) != (pisugar_safe_shutdown_delay | float)

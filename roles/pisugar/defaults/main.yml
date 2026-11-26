@@ -1,5 +1,5 @@
 ---
 pisugar_model: "PiSugar 3"
-pisugar_low_battery_level: 15
-pisugar_check_interval: 1min
+pisugar_safe_shutdown_level: 15
+pisugar_safe_shutdown_delay: 60
 pisugar_auto_reboot: true

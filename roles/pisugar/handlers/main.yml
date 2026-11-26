@@ -1,8 +1,6 @@
 ---
-- name: Restart pisugar low battery timer
+- name: Reload systemd manager
   ansible.builtin.systemd_service:
-    name: pisugar-low-battery.timer
-    state: restarted
     daemon_reload: true
 
 - name: Reboot for I2C

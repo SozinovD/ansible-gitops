@@ -9,16 +9,17 @@ devices.
 - Renders `/etc/profile.d/90-common.sh` with the aliases from
   `common_shell_aliases` and `EDITOR`/`VISUAL` set to `common_editor`
   (picked up by login shells for all users).
-- Installs fail2ban, renders `common_fail2ban_jail_local_file` from the
-  `common_fail2ban_*` variables, validates the config with
+- fail2ban (part of `common_packages`): renders `common_fail2ban_jail_local_file`
+  from the `common_fail2ban_*` variables, validates the config with
   `fail2ban-client -t` and enables the service. Set
-  `common_fail2ban_enabled: false` to stop and disable it.
+  `common_fail2ban_enabled: false` to stop and disable it (the package stays
+  installed).
 
 ## Variables
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `common_packages` | vim, tmux, htop, curl, wget, git, jq, rsync, tree, unzip | packages to install |
+| `common_packages` | vim, tmux, htop, curl, wget, git, jq, rsync, tree, unzip, fail2ban | packages to install |
 | `common_shell_aliases` | `ll`, `la`, `grep` | alias name → command, rendered into the profile |
 | `common_editor` | `vim` | value for `EDITOR`/`VISUAL` (empty to skip) |
 | `common_profile_d_file` | `/etc/profile.d/90-common.sh` | path of the managed profile script |
